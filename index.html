@@ -7,79 +7,152 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to Chronomagica</h1>
-    <p>Discover a world of magic and mystery.</p>
-    <button id="magicButton">Cast a Spell</button>
-    <div id="datetime"></div>
-    <div id="weather"></div>
-    <div class="weather-input">
-        <input type="text" id="locationInput" placeholder="Enter city or zip code">
-        <button id="getWeatherButton">Get Weather</button>
-    </div>
+  <h1 class="app-heading">Welcome to Chronomagica</h1>
+  <button id="magicButton" class="lucky" style="font-size:2em;">Today's Energies</button>
 
-    <h2>Planetary Data</h2>
-    <table id="planetaryTable">
-        <thead>
-            <tr>
-                <th>Celestial Body</th>
-                <th>Retrograde Status</th>
-                <th>Moon Phase</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Mercury</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Venus</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Mars</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Jupiter</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Saturn</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Uranus</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Neptune</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Pluto</td>
-                <td>Direct</td>
-                <td>N/A</td>
-            </tr>
-            <tr>
-                <td>Moon</td>
-                <td>N/A</td>
-                <td>New Moon</td>
-            </tr>
-            <tr>
-                <td>Sol</td>
-                <td>N/A</td>
-                <td>N/A</td>
-            </tr>
-        </tbody>
-    </table>
+  <div id="datetime"></div>
+  <div id="weather"></div>
+  <div class="weather-input">
+    <input type="text" id="locationInput" placeholder="Enter city or zip code">
+    <button id="getWeatherButton">Get Weather</button>
+  </div>
 
-    <script src="script.js"></script>
+  <h2>Planetary Data</h2>
+  <table id="planetaryTable" class="planetary-table">
+    <thead>
+      <tr>
+        <th>Celestial Body</th>
+        <th>Retrograde Status</th>
+        <th>Moon Phase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="solHighlight" class="planetary-row">
+        <td class="planetary-cell">Sol ☉</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="lunaHighlight" class="planetary-row">
+        <td class="planetary-cell">Luna ☽</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="mercuryHighlight" class="planetary-row">
+        <td class="planetary-cell">Mercury ☿</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="venusHighlight" class="planetary-row">
+        <td class="planetary-cell">Venus ♀</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="marsHighlight" class="planetary-row">
+        <td class="planetary-cell">Mars ♂</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="jupiterHighlight" class="planetary-row">
+        <td class="planetary-cell">Jupiter ♃</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="saturnHighlight" class="planetary-row">
+        <td class="planetary-cell">Saturn ♄</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="uranusHighlight" class="planetary-row">
+        <td class="planetary-cell">Uranus ♅</td>
+        <td class="retrograde-status">Direct</td>
+        <td>N/A</td>
+      </tr>
+      <tr id="neptuneHighlight" class="planetary-row">
+        <td class="planetary-cell">Neptune ♆</td>
+        <td class="retrograde-status">N/A</td>
+        <td>New Moon</td>
+      </tr>
+      <tr id="plutoHighlight" class="planetary-row">
+        <td class="planetary-cell">Pluto ⯓</td>
+        <td class="retrograde-status">N/A</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function getSymbols() {
+      try {
+        const response = await fetch('/api/symbols');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const symbols = await response.json();
+        console.log('Symbols:', symbols);
+
+        const weatherSymbolsDiv = document.getElementById('weatherSymbols');
+        for (const [key, value] of Object.entries(symbols.weather)) {
+          weatherSymbolsDiv.innerHTML += `<p>${key}: ${value}</p>`;
+        }
+
+        const zodiacSymbolsDiv = document.getElementById('zodiacSymbols');
+        for (const [key, value] of Object.entries(symbols.zodiac)) {
+          zodiacSymbolsDiv.innerHTML += `<p>${key}: ${value}</p>`;
+        }
+
+        const moonPhaseSymbolsDiv = document.getElementById('moonPhaseSymbols');
+        for (const [key, value] of Object.entries(symbols.moonPhases)) {
+          moonPhaseSymbolsDiv.innerHTML += `<p>${key}: ${value}</p>`;
+        }
+
+        const retrogradeSymbolDiv = document.getElementById('retrogradeSymbol');
+        retrogradeSymbolDiv.innerHTML = `<p>℞</p>`;
+
+      } catch (error) {
+        console.error('Error fetching symbols:', error);
+      }
+    }
+
+    async function getAstrologyData() {
+      try {
+        const response = await fetch('/api/astrology');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const astrologyData = await response.json();
+        console.log('Astrology Data:', astrologyData);
+
+        const planetaryTable = document.getElementById('planetaryTable');
+        const rows = planetaryTable.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+          const planetName = row.querySelector('.planetary-cell').textContent;
+          let status = 'Direct';
+          let rowClass = '';
+
+          if (planetName === 'Sol ☉') {
+            status = astrologyData.eclipseType || 'N/A';
+          } else if (planetName === 'Luna ☽') {
+            status = astrologyData.moonPhase;
+          } else {
+            if (astrologyData.planetsRetrograde[planetName.split(' ')[0].toLowerCase()]) {
+              status = 'Retrograde';
+              rowClass = 'retrograde';
+            }
+          }
+
+          row.querySelector('.retrograde-status').textContent = status;
+          row.className = `planetary-row ${rowClass}`;
+        });
+
+      } catch (error) {
+        console.error('Error fetching astrology data:', error);
+      }
+    }
+
+    getSymbols();
+    getAstrologyData();
+  </script>
+  <script src="script.js"></script>
 </body>
 </html>
