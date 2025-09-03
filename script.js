@@ -237,7 +237,7 @@ splashLocationInput.addEventListener('input', async () => {
   const query = splashLocationInput.value.trim();
   if (query.length > 2) { // Start searching after 2 characters
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=us`);
       const data = await response.json();
       displaySuggestions(data);
     } catch (error) {
@@ -254,9 +254,23 @@ function displaySuggestions(suggestions) {
   if (suggestions.length > 0) {
     suggestions.forEach(item => {
       const li = document.createElement('li');
-      li.textContent = item.display_name;
+      let cityName = '';
+      if (item.address.city) {
+        cityName = item.address.city;
+      } else if (item.address.town) {
+        cityName = item.address.town;
+      } else if (item.address.village) {
+        cityName = item.address.village;
+      } else if (item.name) {
+        cityName = item.name;
+      } else {
+        // Fallback to the first part of display_name if structured city is not found
+        cityName = item.display_name.split(',')[0].trim();
+      }
+
+      li.textContent = cityName;
       li.addEventListener('click', () => {
-        splashLocationInput.value = item.display_name;
+        splashLocationInput.value = cityName;
         suggestionsList.innerHTML = '';
       });
       suggestionsList.appendChild(li);
