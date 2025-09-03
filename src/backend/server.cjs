@@ -5,6 +5,25 @@ const path = require('path');
 
 app.use(express.static(path.join(__dirname, '..', '..'))); // Serve static files from the root directory
 
+app.get('/api/datetime', (req, res) => {
+  const now = new Date();
+  res.json({ datetime: now.toISOString() });
+});
+
+app.get('/api/weather', (req, res) => {
+  const { location } = req.query;
+  if (!location) {
+    return res.status(400).json({ error: 'Location is required.' });
+  }
+  // Placeholder weather data
+  const weatherData = {
+    location: location,
+    temperature: Math.floor(Math.random() * 20) + 10, // Random temperature between 10 and 30
+    condition: 'Partly Cloudy'
+  };
+  res.json(weatherData);
+});
+
 app.get('/api/symbols', (req, res) => {
   res.sendFile(path.join(__dirname, 'symbols.json'));
 });
@@ -34,6 +53,42 @@ app.get('/api/astrology', (req, res) => {
     planetsRetrograde: planetsRetrograde
   };
   res.json(astrologyData);
+});
+
+const { spawn } = require('child_process');
+
+app.get('/api/astronomy_data', (req, res) => {
+  const { latitude, longitude } = req.query;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ error: 'Latitude and longitude are required.' });
+  }
+
+  const pythonProcess = spawn('python', ['src/backend/astronomy.py', latitude, longitude]);
+
+  let dataString = '';
+
+  pythonProcess.stdout.on('data', (data) => {
+    dataString += data.toString();
+  });
+
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python stderr: ${data.toString()}`);
+  });
+
+  pythonProcess.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`Python script exited with code ${code}`);
+      return res.status(500).json({ error: 'Failed to execute Python script' });
+    }
+    try {
+      const astronomyData = JSON.parse(dataString);
+      res.json(astronomyData);
+    } catch (e) {
+      console.error("Failed to parse json", e);
+      res.status(500).json({ error: 'Failed to parse Python output' });
+    }
+  });
 });
 
 app.listen(port, () => {
