@@ -6,94 +6,107 @@
     <title>Chronomagica</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1 class="app-heading">Welcome to Chronomagica</h1>
-  <button id="magicButton" class="lucky" style="font-size:2em;">Today's Energies</button>
-
-  <div id="datetime"></div>
-  <div id="weather"></div>
-  <div class="weather-input">
-    <input type="text" id="locationInput" placeholder="Enter city or zip code">
-    <button id="getWeatherButton">Get Weather</button>
+<body class="light-mode">
+  <div id="splash-page" class="splash-page">
+    <button id="darkModeToggle" class="dark-mode-toggle">Toggle Dark Mode</button>
+    <h1 class="app-heading">Chronomagica</h1>
+    <div class="location-input-splash">
+      <input type="text" id="splashLocationInput" placeholder="Enter your location">
+      <button id="enterAppButton">Enter</button>
+      <ul id="suggestionsList" class="suggestions-list"></ul>
+    </div>
   </div>
 
-  <h2>Planetary Data</h2>
-  <table id="planetaryTable" class="planetary-table">
-    <thead>
-      <tr>
-        <th>Celestial Body</th>
-        <th>Retrograde Status</th>
-        <th>Moon Phase</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr id="solHighlight" class="planetary-row">
-        <td class="planetary-cell">Sol ☉</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="lunaHighlight" class="planetary-row">
-        <td class="planetary-cell">Luna ☽</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="mercuryHighlight" class="planetary-row">
-        <td class="planetary-cell">Mercury ☿</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="venusHighlight" class="planetary-row">
-        <td class="planetary-cell">Venus ♀</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="marsHighlight" class="planetary-row">
-        <td class="planetary-cell">Mars ♂</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="jupiterHighlight" class="planetary-row">
-        <td class="planetary-cell">Jupiter ♃</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="saturnHighlight" class="planetary-row">
-        <td class="planetary-cell">Saturn ♄</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="uranusHighlight" class="planetary-row">
-        <td class="planetary-cell">Uranus ♅</td>
-        <td class="retrograde-status">Direct</td>
-        <td>N/A</td>
-      </tr>
-      <tr id="neptuneHighlight" class="planetary-row">
-        <td class="planetary-cell">Neptune ♆</td>
-        <td class="retrograde-status">N/A</td>
-        <td>New Moon</td>
-      </tr>
-      <tr id="plutoHighlight" class="planetary-row">
-        <td class="planetary-cell">Pluto ⯓</td>
-        <td class="retrograde-status">N/A</td>
-        <td>N/A</td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="main-content" class="main-content" style="display: none;">
+    <button id="homeButton" class="home-button">Home</button>
+    <h1 class="app-heading">Welcome to Chronomagica</h1>
+    <button id="magicButton" class="lucky" style="font-size:2em;">Today's Energies</button>
 
-  <h2>Astronomical Data (by Location)</h2>
-  <div class="location-input">
-    <input type="number" id="latitudeInput" placeholder="Enter Latitude" step="0.0001">
-    <input type="number" id="longitudeInput" placeholder="Enter Longitude" step="0.0001">
-    <button id="getAstronomyDataButton">Get Astronomy Data</button>
-  </div>
-  <div id="astronomyData">
-    <h3>Sun</h3>
-    <p>Azimuth: <span id="sunAzimuth">N/A</span></p>
-    <p>Altitude: <span id="sunAltitude">N/A</span></p>
-    <h3>Moon</h3>
-    <p>Phase Angle: <span id="moonPhaseAngle">N/A</span></p>
-    <p>Azimuth: <span id="moonAzimuth">N/A</span></p>
-    <p>Altitude: <span id="moonAltitude">N/A</span></p>
+    <div id="datetime"></div>
+    <div id="weather"></div>
+    <div class="weather-input">
+      <input type="text" id="locationInput" placeholder="Enter city or zip code">
+      <button id="getWeatherButton">Get Weather</button>
+    </div>
+
+    <h2>Planetary Data</h2>
+    <table id="planetaryTable" class="planetary-table">
+      <thead>
+        <tr>
+          <th>Celestial Body</th>
+          <th>Retrograde Status</th>
+          <th>Moon Phase</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="solHighlight" class="planetary-row">
+          <td class="planetary-cell">Sol ☉</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="lunaHighlight" class="planetary-row">
+          <td class="planetary-cell">Luna ☽</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="mercuryHighlight" class="planetary-row">
+          <td class="planetary-cell">Mercury ☿</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="venusHighlight" class="planetary-row">
+          <td class="planetary-cell">Venus ♀</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="marsHighlight" class="planetary-row">
+          <td class="planetary-cell">Mars ♂</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="jupiterHighlight" class="planetary-row">
+          <td class="planetary-cell">Jupiter ♃</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="saturnHighlight" class="planetary-row">
+          <td class="planetary-cell">Saturn ♄</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="uranusHighlight" class="planetary-row">
+          <td class="planetary-cell">Uranus ♅</td>
+          <td class="retrograde-status">Direct</td>
+          <td>N/A</td>
+        </tr>
+        <tr id="neptuneHighlight" class="planetary-row">
+          <td class="planetary-cell">Neptune ♆</td>
+          <td class="retrograde-status">N/A</td>
+          <td>New Moon</td>
+        </tr>
+        <tr id="plutoHighlight" class="planetary-row">
+          <td class="planetary-cell">Pluto ⯓</td>
+          <td class="retrograde-status">N/A</td>
+          <td>N/A</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Astronomical Data (by Location)</h2>
+    <div class="location-input">
+      <input type="number" id="latitudeInput" placeholder="Enter Latitude" step="0.0001">
+      <input type="number" id="longitudeInput" placeholder="Enter Longitude" step="0.0001">
+      <button id="getAstronomyDataButton">Get Astronomy Data</button>
+    </div>
+    <div id="astronomyData">
+      <h3>Sun</h3>
+      <p>Azimuth: <span id="sunAzimuth">N/A</span></p>
+      <p>Altitude: <span id="sunAltitude">N/A</span></p>
+      <h3>Moon</h3>
+      <p>Phase Angle: <span id="moonPhaseAngle">N/A</span></p>
+      <p>Azimuth: <span id="moonAzimuth">N/A</span></p>
+      <p>Altitude: <span id="moonAltitude">N/A</span></p>
+    </div>
   </div>
 
   <script src="script.js"></script>

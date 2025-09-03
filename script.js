@@ -211,8 +211,101 @@ document.getElementById('getAstronomyDataButton').addEventListener('click', () =
   getAstronomyDataFromPython();
 });
 
-// Initial data loading
-getDateTime();
-getSymbols();
-getAstrologyData();
-// getAstronomyDataFromPython(); // This will be called on button click now.
+document.getElementById('enterAppButton').addEventListener('click', () => {
+  const splashLocationInput = document.getElementById('splashLocationInput');
+  const location = splashLocationInput.value.trim();
+  if (location) {
+    localStorage.setItem('userLocation', location);
+    document.getElementById('splash-page').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    // Initialize main content data
+    getDateTime();
+    getSymbols();
+    getAstrologyData();
+    // Optionally, set the location input in the main content
+    document.getElementById('locationInput').value = location;
+    getWeather(); // Fetch weather for the entered location
+  } else {
+    alert('Please enter your location to proceed.');
+  }
+});
+
+const splashLocationInput = document.getElementById('splashLocationInput');
+const suggestionsList = document.getElementById('suggestionsList');
+
+splashLocationInput.addEventListener('input', async () => {
+  const query = splashLocationInput.value.trim();
+  if (query.length > 2) { // Start searching after 2 characters
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
+      const data = await response.json();
+      displaySuggestions(data);
+    } catch (error) {
+      console.error('Error fetching location suggestions:', error);
+      suggestionsList.innerHTML = '';
+    }
+  } else {
+    suggestionsList.innerHTML = '';
+  }
+});
+
+function displaySuggestions(suggestions) {
+  suggestionsList.innerHTML = '';
+  if (suggestions.length > 0) {
+    suggestions.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item.display_name;
+      li.addEventListener('click', () => {
+        splashLocationInput.value = item.display_name;
+        suggestionsList.innerHTML = '';
+      });
+      suggestionsList.appendChild(li);
+    });
+  }
+}
+
+// Initial data loading (only if splash page is bypassed or after entering location)
+if (localStorage.getItem('userLocation')) {
+  document.getElementById('splash-page').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  getDateTime();
+  getSymbols();
+  getAstrologyData();
+  document.getElementById('locationInput').value = localStorage.getItem('userLocation');
+  getWeather();
+} else {
+  document.getElementById('splash-page').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'none';
+}
+
+document.getElementById('homeButton').addEventListener('click', () => {
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('splash-page').style.display = 'flex';
+  localStorage.removeItem('userLocation'); // Clear stored location
+  document.getElementById('splashLocationInput').value = ''; // Clear splash input
+  document.getElementById('suggestionsList').innerHTML = ''; // Clear suggestions
+});
+
+document.addEventListener('click', (event) => {
+  console.log('Document clicked:', event.target);
+});
+
+// Dark Mode Toggle
+document.getElementById('darkModeToggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  // Save user preference
+  if (document.body.classList.contains('dark-mode')) {
+    localStorage.setItem('theme', 'dark');
+  } else {
+    localStorage.setItem('theme', 'light');
+  }
+});
+
+// Apply saved theme on load
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+});
