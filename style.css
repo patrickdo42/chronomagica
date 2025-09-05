@@ -1,14 +1,24 @@
+:root {
+  --brand-purple: #5b0d37;
+  --brand-purple-2: #7c1b3f;
+  --muted-text: #333;
+  --card-bg: #ffffff;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --row-sep: #efefef;
+}
+
 body {
-  font-family: sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   margin: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
-  background-color: #f0f0f0;
-  flex-direction: column; /* Allow content to stack vertically */
-  color: #333; /* Default text color */
+  background: #faf7f9;
+  flex-direction: column;
+  color: var(--muted-text);
   transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 32px 16px;
 }
 
 body.dark-mode {
@@ -90,17 +100,17 @@ body.dark-mode .neutral {
 }
 
 .dark-mode-toggle {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 20px;
   padding: 10px 15px;
-  background-color: #7c1b3f;
+  background-color: var(--brand-purple-2);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 1em;
-}
+  }
 
 .dark-mode-toggle:hover {
   background-color: #5a132e;
@@ -109,25 +119,23 @@ body.dark-mode .neutral {
 .splash-page {
   text-align: center;
   padding: 20px;
-  background-color: #fff;
+  background-color: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   display: flex; /* Use flexbox for internal layout */
   flex-direction: column; /* Stack children vertically */
   justify-content: center; /* Center content vertically */
   align-items: center; /* Center content horizontally */
-  width: 100vw; /* Full viewport width */
-  height: 100vh; /* Full viewport height */
-  position: fixed; /* Fix to viewport */
-  top: 0;
-  left: 0;
-  z-index: 1000; /* Ensure it's on top */
+  width: min(100%, 820px);
+  margin: 24px auto;
+  position: relative;
+  z-index: 1;
 }
 
 .splash-page h1 {
-  font-size: 4em; /* Larger title */
-  color: #7c1b3f;
-  margin-bottom: 40px; /* More space below title */
+  font-size: 3.2em; /* Larger title */
+  color: var(--brand-purple);
+  margin-bottom: 24px;
   transition: color 0.3s ease;
 }
 
@@ -187,20 +195,21 @@ body.dark-mode .neutral {
 
 .main-content {
   display: none; /* Hidden by default */
-  padding: 20px;
-  text-align: center;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 28px 28px 32px;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  width: min(100%, 720px);
+  margin: 0 auto;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .home-button {
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
   padding: 10px 15px;
-  background-color: #7c1b3f;
+  background-color: var(--brand-purple-2);
   color: white;
   border: none;
   border-radius: 4px;
@@ -213,13 +222,79 @@ body.dark-mode .neutral {
 }
 
 h1 {
-  color: #7c1b3f;
+  color: var(--brand-purple);
   transition: color 0.3s ease;
 }
 
 h2, h3 {
-  color: #7c1b3f;
+  color: var(--brand-purple);
   transition: color 0.3s ease;
+}
+
+/* "Today's Energies" title-like treatment */
+.app-heading {
+  font-weight: 700;
+  font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+  margin: 0 0 8px 0;
+}
+
+/* Date/Time and Weather row */
+#datetime, #weather {
+  display: inline-block;
+  width: 48%;
+  vertical-align: top;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  color: #2f2a2c;
+}
+
+#datetime { text-align: left; }
+#weather { text-align: right; }
+
+/* Planetary table like the mock */
+.planetary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.planetary-table thead { display: none; }
+
+.planetary-table tbody tr {
+  border-bottom: 6px solid #ffffff;
+}
+
+.planetary-table td, .planetary-table th {
+  padding: 12px 14px;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+}
+
+.planetary-cell { font-weight: 700; }
+
+.planetary-table td:nth-child(2) {
+  text-align: center;
+  font-weight: 600;
+}
+
+.planetary-table td:nth-child(3) {
+  text-align: right;
+}
+
+/* Right column badge feel */
+.planetary-table td:last-child {
+  color: #fff;
+  background: #9a79bd; /* soft purple */
+  font-weight: 700;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* First column left cap */
+.planetary-table td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
 
 #solHighlight {
@@ -266,13 +341,20 @@ h2, h3 {
   color: #ff0036;
 }
 
-#planetaryTable tbody tr:nth-child(odd) {
-  background-color: #ededed;
+/* Gray schedule table (if present in future) */
+.hours-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-#planetaryTable tbody tr:nth-child(even) {
-  background-color: #cfcfcf;
-}
+.hours-table tbody tr:nth-child(odd) { background: #ececec; }
+.hours-table tbody tr:nth-child(even) { background: #d8d8d8; }
+.hours-table td { padding: 10px 12px; font-size: 1.1rem; }
+.hours-table .current { background: #dbf3df; font-weight: 800; }
 
 .lucky {
   color: #009626;
@@ -285,3 +367,25 @@ h2, h3 {
 .neutral {
   color: #000;
 }
+
+/* Make the "Today's Energies" button look like a subtle label */
+#magicButton {
+  background: transparent;
+  color: var(--brand-purple);
+  border: 0;
+  padding: 0;
+  margin: 4px 0 12px;
+  font-weight: 700;
+}
+
+/* Fine-tune table text colors for contrast */
+#plutoHighlight .planetary-cell { color: #c41e3a; }
+#marsHighlight .planetary-cell { color: #a1302c; }
+#venusHighlight .planetary-cell { color: #177e2f; }
+#mercuryHighlight .planetary-cell { color: #4a5a00; }
+#jupiterHighlight .planetary-cell { color: #0a4a7a; }
+#saturnHighlight .planetary-cell { color: #3b3b3b; }
+#uranusHighlight .planetary-cell { color: #4c3d8f; }
+#neptuneHighlight .planetary-cell { color: #633a7a; }
+#solHighlight .planetary-cell { color: #7a5b00; }
+#lunaHighlight .planetary-cell { color: #2f2f2f; }

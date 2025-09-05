@@ -6,7 +6,8 @@ async function getDateTime() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    document.getElementById('datetime').textContent = `Current Date and Time: ${data.datetime}`;
+    const local = new Date(data.datetime).toLocaleString();
+    document.getElementById('datetime').textContent = `Current Date and Time: ${local}`;
   } catch (error) {
     console.error('Error fetching date and time:', error);
     document.getElementById('datetime').textContent = 'Could not fetch date and time.';

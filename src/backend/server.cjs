@@ -3,9 +3,18 @@ const app = express();
 const port = 3001;
 const path = require('path');
 
+// Basic CORS headers to allow cross-origin requests during development
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, '..', '..'))); // Serve static files from the root directory
 
-app.get('/api/datetime', (req, res) => {
+app.get(['/api/datetime', '/datetime'], (req, res) => {
   const now = new Date();
   res.json({ datetime: now.toISOString() });
 });

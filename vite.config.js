@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const rootDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: resolve(import.meta.dirname),
+  root: resolve(rootDir),
   build: {
     outDir: 'dist'
   },
@@ -12,7 +15,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix for backend
+        // Keep the /api prefix so routes match the backend
       },
     },
   },
