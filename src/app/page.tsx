@@ -1,3 +1,5 @@
+import { ClockDate, ClockTime } from "@/components/Clock";
+
 export default function Home() {
   return (
     <main>
@@ -5,11 +7,15 @@ export default function Home() {
         <h1 className="energies-title">Today&#8217;s Energies</h1>
 
         <div id="datetime">
-          <div>Wednesday, June 26, 2025</div>
+          <div>
+            <ClockDate />
+          </div>
           <div>Metairie, LA</div>
         </div>
         <div id="weather">
-          <div>1:09 PM</div>
+          <div>
+            <ClockTime />
+          </div>
           <div>90&#176; F, Partly Cloudy</div>
         </div>
 
@@ -158,4 +164,3 @@ export default function Home() {
     </main>
   );
 }
-

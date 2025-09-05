@@ -277,6 +277,11 @@ h2, h3 {
 #datetime { text-align: left; }
 #weather { text-align: right; }
 
+/* Keep dynamic date/time on a single line */
+#datetime time, #weather time {
+  white-space: nowrap;
+}
+
 .planetary-table {
   width: 100%;
   border-collapse: separate;
