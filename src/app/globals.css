@@ -222,7 +222,7 @@ body.dark-mode .neutral {
 }
 
 .main-content {
-  display: none;
+  display: block;
   padding: 28px 28px 32px;
   background-color: var(--card-bg);
   border-radius: 12px;
@@ -271,6 +271,7 @@ h2, h3 {
   vertical-align: top;
   font-size: clamp(1rem, 2.4vw, 1.25rem);
   color: #2f2a2c;
+  font-family: var(--font-display), Georgia, serif;
 }
 
 #datetime { text-align: left; }
@@ -346,6 +347,9 @@ h2, h3 {
 .hours-table tbody tr:nth-child(even) { background: #d8d8d8; }
 .hours-table td { padding: 10px 12px; font-size: 1.1rem; }
 .hours-table .current { background: #dbf3df; font-weight: 800; }
+.hours-table td:nth-child(1) { width: 10%; }
+.hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
+.hours-table td:nth-child(3) { text-align: right; width: 35%; }
 
 .lucky { color: #009626; }
 .unlucky { color: #ff0036; }
@@ -370,3 +374,20 @@ h2, h3 {
 #neptuneHighlight .planetary-cell { color: #633a7a; }
 #solHighlight .planetary-cell { color: #7a5b00; }
 #lunaHighlight .planetary-cell { color: #2f2f2f; }
+
+/* Display title to match screenshot */
+.energies-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.8rem, 6vw, 4rem);
+  line-height: 1.1;
+  color: var(--brand-purple);
+  text-align: center;
+  margin: 4px 0 8px;
+}
+
+/* Planetary table layout refinements */
+.planetary-table td:nth-child(1) { width: 45%; }
+.planetary-table td:nth-child(2) { width: 30%; }
+.planetary-table td:nth-child(3) { width: 25%; white-space: nowrap; text-align: right; }
+.planetary-table td:nth-child(4) { width: 64px; text-align: center; }

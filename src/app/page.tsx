@@ -1,107 +1,161 @@
 export default function Home() {
   return (
     <main>
-      <div id="splash-page" className="splash-page">
-        <button id="darkModeToggle" className="dark-mode-toggle">Toggle Dark Mode</button>
-        <h1 className="app-heading">Welcome to Chronomagica</h1>
-        <div className="location-input-splash">
-          <input type="text" id="splashLocationInput" placeholder="Enter your location" />
-          <button id="enterAppButton">Enter</button>
-          <ul id="suggestionsList" className="suggestions-list"></ul>
+      <div id="main-content" className="main-content">
+        <h1 className="energies-title">Today&#8217;s Energies</h1>
+
+        <div id="datetime">
+          <div>Wednesday, June 26, 2025</div>
+          <div>Metairie, LA</div>
         </div>
-      </div>
-
-      <div id="main-content" className="main-content" style={{ display: "none" }}>
-        <button id="homeButton" className="home-button">Home</button>
-        <h1 className="app-heading">Welcome to Chronomagica</h1>
-        <button id="magicButton" className="lucky" style={{ fontSize: "2em" }}>Today's Energies</button>
-
-        <div id="datetime"></div>
-        <div id="weather"></div>
-        <div className="weather-input">
-          <input type="text" id="locationInput" placeholder="Enter city or zip code" />
-          <button id="getWeatherButton">Get Weather</button>
+        <div id="weather">
+          <div>1:09 PM</div>
+          <div>90&#176; F, Partly Cloudy</div>
         </div>
 
-        <h2>Planetary Data</h2>
-        <table id="planetaryTable" className="planetary-table">
+        <table id="planetaryTable" className="planetary-table" aria-label="Planetary highlights">
           <thead>
             <tr>
               <th>Celestial Body</th>
               <th>Retrograde Status</th>
-              <th>Moon Phase</th>
+              <th>Sign</th>
+              <th>Glyph</th>
             </tr>
           </thead>
           <tbody>
             <tr id="solHighlight" className="planetary-row">
-              <td className="planetary-cell">Sol ☉</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Sol &#9737;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Cancer</td>
+              <td className="sign-glyph">&#9803;</td>
             </tr>
             <tr id="lunaHighlight" className="planetary-row">
-              <td className="planetary-cell">Luna ☽</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Luna &#9789;</td>
+              <td className="retrograde-status">New Moon &#127761;</td>
+              <td className="sign-text">Cancer</td>
+              <td className="sign-glyph">&#9803;</td>
             </tr>
             <tr id="mercuryHighlight" className="planetary-row">
-              <td className="planetary-cell">Mercury ☿</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Mercury &#9791;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Cancer</td>
+              <td className="sign-glyph">&#9803;</td>
             </tr>
             <tr id="venusHighlight" className="planetary-row">
-              <td className="planetary-cell">Venus ♀</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Venus &#9792;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Taurus</td>
+              <td className="sign-glyph">&#9801;</td>
             </tr>
             <tr id="marsHighlight" className="planetary-row">
-              <td className="planetary-cell">Mars ♂</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Mars &#9794;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Virgo</td>
+              <td className="sign-glyph">&#9805;</td>
             </tr>
             <tr id="jupiterHighlight" className="planetary-row">
-              <td className="planetary-cell">Jupiter ♃</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Jupiter &#9795;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Cancer</td>
+              <td className="sign-glyph">&#9803;</td>
             </tr>
             <tr id="saturnHighlight" className="planetary-row">
-              <td className="planetary-cell">Saturn ♄</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Saturn &#9796;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Aries</td>
+              <td className="sign-glyph">&#9800;</td>
             </tr>
             <tr id="uranusHighlight" className="planetary-row">
-              <td className="planetary-cell">Uranus ♅</td>
-              <td className="retrograde-status">Direct</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Uranus &#9797;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Taurus</td>
+              <td className="sign-glyph">&#9801;</td>
             </tr>
             <tr id="neptuneHighlight" className="planetary-row">
-              <td className="planetary-cell">Neptune ♆</td>
-              <td className="retrograde-status">N/A</td>
-              <td>New Moon</td>
+              <td className="planetary-cell">Neptune &#9798;</td>
+              <td className="retrograde-status"></td>
+              <td className="sign-text">Aries</td>
+              <td className="sign-glyph">&#9800;</td>
             </tr>
             <tr id="plutoHighlight" className="planetary-row">
-              <td className="planetary-cell">Pluto ⯓</td>
-              <td className="retrograde-status">N/A</td>
-              <td>N/A</td>
+              <td className="planetary-cell">Pluto &#9799;</td>
+              <td className="retrograde-status retrograde">Retrograde &#8478;</td>
+              <td className="sign-text">Aquarius</td>
+              <td className="sign-glyph">&#9810;</td>
             </tr>
           </tbody>
         </table>
 
-        <h2>Astronomical Data (by Location)</h2>
-        <div className="location-input">
-          <input type="number" id="latitudeInput" placeholder="Enter Latitude" step="0.0001" />
-          <input type="number" id="longitudeInput" placeholder="Enter Longitude" step="0.0001" />
-          <button id="getAstronomyDataButton">Get Astronomy Data</button>
-        </div>
-        <div id="astronomyData">
-          <h3>Sun</h3>
-          <p>Azimuth: <span id="sunAzimuth">N/A</span></p>
-          <p>Altitude: <span id="sunAltitude">N/A</span></p>
-          <h3>Moon</h3>
-          <p>Phase Angle: <span id="moonPhaseAngle">N/A</span></p>
-          <p>Azimuth: <span id="moonAzimuth">N/A</span></p>
-          <p>Altitude: <span id="moonAltitude">N/A</span></p>
-        </div>
+        <table className="hours-table" aria-label="Planetary hours">
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>6:01 AM - 7:12 AM</td>
+              <td>Mercury &#9791;</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>7:12 AM - 8:22 AM</td>
+              <td>Luna &#9789;</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>8:22 AM - 9:32 AM</td>
+              <td>Saturn &#9796;</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>9:32 AM - 10:43 AM</td>
+              <td>Jupiter &#9795;</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>10:43 AM - 11:53 AM</td>
+              <td>Mars &#9794;</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>11:43 AM - 1:03 PM</td>
+              <td>Sol &#9737;</td>
+            </tr>
+            <tr className="current">
+              <td>7</td>
+              <td>1:03 PM - 2:14 PM</td>
+              <td>Venus &#9792;</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>2:14 PM - 3:24 PM</td>
+              <td>Mercury &#9791;</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>3:24 PM - 4:35 PM</td>
+              <td>Luna &#9789;</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>4:35 PM - 5:45 PM</td>
+              <td>Saturn &#9796;</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td>5:45 PM - 6:55 PM</td>
+              <td>Jupiter &#9795;</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>6:55 PM - 8:06 PM</td>
+              <td>Mars &#9794;</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p className="lucky" style={{ textAlign: "center", fontSize: "1.4rem", marginTop: 16 }}>
+          Today is lucky.
+        </p>
       </div>
     </main>
   );
 }
+
