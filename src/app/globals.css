@@ -39,8 +39,8 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   margin: 0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: flex-start; /* keep content near top */
+  align-items: center; /* center horizontally */
   min-height: 100vh;
   background: #faf7f9;
   flex-direction: column;
@@ -302,6 +302,7 @@ h2, h3 {
 .planetary-table td:nth-child(2) {
   text-align: center;
   font-weight: 600;
+  white-space: nowrap; /* keep Retrograde/New Moon on one line */
 }
 
 .planetary-table td:nth-child(3) {
@@ -387,7 +388,7 @@ h2, h3 {
 }
 
 /* Planetary table layout refinements */
-.planetary-table td:nth-child(1) { width: 45%; }
-.planetary-table td:nth-child(2) { width: 30%; }
-.planetary-table td:nth-child(3) { width: 25%; white-space: nowrap; text-align: right; }
+.planetary-table td:nth-child(1) { width: 42%; }
+.planetary-table td:nth-child(2) { width: 33%; }
+.planetary-table td:nth-child(3) { width: 23%; white-space: nowrap; text-align: right; }
 .planetary-table td:nth-child(4) { width: 64px; text-align: center; }
