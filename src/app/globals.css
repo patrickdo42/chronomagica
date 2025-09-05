@@ -1,3 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---- Imported from root style.css (Vite) ---- */
 :root {
   --brand-purple: #5b0d37;
   --brand-purple-2: #7c1b3f;
@@ -36,7 +64,7 @@ body.dark-mode .splash-page h1,
 body.dark-mode .main-content h1,
 body.dark-mode .main-content h2,
 body.dark-mode .main-content h3 {
-  color: #a0d9ff; /* Lighter color for headings in dark mode */
+  color: #a0d9ff;
 }
 
 body.dark-mode .location-input-splash input,
@@ -53,7 +81,7 @@ body.dark-mode .dark-mode-toggle,
 body.dark-mode #getWeatherButton,
 body.dark-mode #getAstronomyDataButton,
 body.dark-mode #magicButton {
-  background-color: #5a132e; /* Darker shade for buttons */
+  background-color: #5a132e;
   color: #f0f0f0;
 }
 
@@ -63,7 +91,7 @@ body.dark-mode .dark-mode-toggle:hover,
 body.dark-mode #getWeatherButton:hover,
 body.dark-mode #getAstronomyDataButton:hover,
 body.dark-mode #magicButton:hover {
-  background-color: #7c1b3f; /* Lighter hover for buttons */
+  background-color: #7c1b3f;
 }
 
 body.dark-mode .suggestions-list {
@@ -88,15 +116,15 @@ body.dark-mode #planetaryTable tbody tr:nth-child(even) {
 }
 
 body.dark-mode .retrograde {
-  color: #ff6666; /* Lighter red for retrograde in dark mode */
+  color: #ff6666;
 }
 
 body.dark-mode .lucky {
-  color: #66ff66; /* Lighter green for lucky in dark mode */
+  color: #66ff66;
 }
 
 body.dark-mode .neutral {
-  color: #ccc; /* Lighter neutral in dark mode */
+  color: #ccc;
 }
 
 .dark-mode-toggle {
@@ -110,7 +138,7 @@ body.dark-mode .neutral {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1em;
-  }
+}
 
 .dark-mode-toggle:hover {
   background-color: #5a132e;
@@ -122,10 +150,10 @@ body.dark-mode .neutral {
   background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: var(--card-shadow);
-  display: flex; /* Use flexbox for internal layout */
-  flex-direction: column; /* Stack children vertically */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: min(100%, 820px);
   margin: 24px auto;
   position: relative;
@@ -133,22 +161,22 @@ body.dark-mode .neutral {
 }
 
 .splash-page h1 {
-  font-size: 3.2em; /* Larger title */
+  font-size: 3.2em;
   color: var(--brand-purple);
   margin-bottom: 24px;
   transition: color 0.3s ease;
 }
 
 .location-input-splash {
-  position: relative; /* For positioning suggestions */
+  position: relative;
 }
 
 .location-input-splash input {
-  padding: 12px; /* Slightly larger input */
+  padding: 12px;
   margin-right: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 300px; /* Wider input */
+  width: 300px;
   font-size: 1.1em;
 }
 
@@ -168,7 +196,7 @@ body.dark-mode .neutral {
 
 .suggestions-list {
   position: absolute;
-  top: 100%; /* Position below the input */
+  top: 100%;
   left: 0;
   right: 0;
   background-color: #fff;
@@ -180,7 +208,7 @@ body.dark-mode .neutral {
   list-style: none;
   padding: 0;
   margin: 0;
-  z-index: 1001; /* Above other content */
+  z-index: 1001;
 }
 
 .suggestions-list li {
@@ -194,7 +222,7 @@ body.dark-mode .neutral {
 }
 
 .main-content {
-  display: none; /* Hidden by default */
+  display: none;
   padding: 28px 28px 32px;
   background-color: var(--card-bg);
   border-radius: 12px;
@@ -231,14 +259,12 @@ h2, h3 {
   transition: color 0.3s ease;
 }
 
-/* "Today's Energies" title-like treatment */
 .app-heading {
   font-weight: 700;
   font-size: clamp(2.2rem, 4.4vw, 3.4rem);
   margin: 0 0 8px 0;
 }
 
-/* Date/Time and Weather row */
 #datetime, #weather {
   display: inline-block;
   width: 48%;
@@ -250,7 +276,6 @@ h2, h3 {
 #datetime { text-align: left; }
 #weather { text-align: right; }
 
-/* Planetary table like the mock */
 .planetary-table {
   width: 100%;
   border-collapse: separate;
@@ -282,66 +307,32 @@ h2, h3 {
   text-align: right;
 }
 
-/* Right column badge feel */
 .planetary-table td:last-child {
   color: #fff;
-  background: #9a79bd; /* soft purple */
+  background: #9a79bd;
   font-weight: 700;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
 }
 
-/* First column left cap */
 .planetary-table td:first-child {
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
 }
 
-#solHighlight {
-  background-color: #ffedb6;
-}
+#solHighlight { background-color: #ffedb6; }
+#lunaHighlight { background-color: #dddbd4; }
+#mercuryHighlight { background-color: #fff8bc; }
+#venusHighlight { background-color: #d9ffd9; }
+#marsHighlight { background-color: #f8dddd; }
+#jupiterHighlight { background-color: #d2eaf8; }
+#saturnHighlight { background-color: #c8c8c8; }
+#uranusHighlight { background-color: #ded6ff; }
+#neptuneHighlight { background-color: #f2d1f8; }
+#plutoHighlight { background-color: #f4d4c7; }
 
-#lunaHighlight {
-  background-color: #dddbd4;
-}
+.retrograde { color: #ff0036; }
 
-#mercuryHighlight {
-  background-color: #fff8bc;
-}
-
-#venusHighlight {
-  background-color: #d9ffd9;
-}
-
-#marsHighlight {
-  background-color: #f8dddd;
-}
-
-#jupiterHighlight {
-  background-color: #d2eaf8;
-}
-
-#saturnHighlight {
-  background-color: #c8c8c8;
-}
-
-#uranusHighlight {
-  background-color: #ded6ff;
-}
-
-#neptuneHighlight {
-  background-color: #f2d1f8;
-}
-
-#plutoHighlight {
-  background-color: #f4d4c7;
-}
-
-.retrograde {
-  color: #ff0036;
-}
-
-/* Gray schedule table (if present in future) */
 .hours-table {
   width: 100%;
   border-collapse: separate;
@@ -356,19 +347,10 @@ h2, h3 {
 .hours-table td { padding: 10px 12px; font-size: 1.1rem; }
 .hours-table .current { background: #dbf3df; font-weight: 800; }
 
-.lucky {
-  color: #009626;
-}
+.lucky { color: #009626; }
+.unlucky { color: #ff0036; }
+.neutral { color: #000; }
 
-.unlucky {
-  color: #ff0036;
-}
-
-.neutral {
-  color: #000;
-}
-
-/* Make the "Today's Energies" button look like a subtle label */
 #magicButton {
   background: transparent;
   color: var(--brand-purple);
@@ -378,7 +360,6 @@ h2, h3 {
   font-weight: 700;
 }
 
-/* Fine-tune table text colors for contrast */
 #plutoHighlight .planetary-cell { color: #c41e3a; }
 #marsHighlight .planetary-cell { color: #a1302c; }
 #venusHighlight .planetary-cell { color: #177e2f; }
