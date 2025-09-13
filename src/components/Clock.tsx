@@ -9,7 +9,7 @@ type ClockCommonProps = {
   timeZone?: string;
 };
 
-function useNow(intervalMs = 1000) {
+export function useNow(intervalMs = 1000) {
   const [now, setNow] = useState<Date>(() => new Date());
   const timerRef = useRef<number | null>(null);
 
@@ -24,6 +24,14 @@ function useNow(intervalMs = 1000) {
 
   return now;
 }
+
+interface PlanetData {
+  sunrise: string | null;
+  sunset: string | null;
+  isRetrograde: boolean | null;
+}
+
+const PLANETS = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
 
 export function ClockDate({ locale, timeZone }: ClockCommonProps) {
   const now = useNow(1000);
@@ -73,8 +81,52 @@ export function ClockTime({ locale, timeZone }: ClockCommonProps) {
 }
 
 export default function Clock({ locale, timeZone }: ClockCommonProps) {
-  // Combined clock if needed elsewhere.
   const now = useNow(1000);
+  const [planetData, setPlanetData] = useState<Record<string, PlanetData>>({});
+
+  // Default observer location (e.g., Chicago) - can be made dynamic later
+  const observer = useMemo(() => ({
+    latitude: 41.8781,
+    longitude: -87.6298,
+    height: 180, // meters above sea level
+  }), []);
+
+  useEffect(() => {
+    const fetchPlanetData = async () => {
+      const currentData: Record<string, PlanetData> = {};
+      const dateString = now.toISOString();
+
+      for (const planet of PLANETS) {
+        // Fetch sunrise
+        const sunriseRes = await fetch(
+          `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=${planet}&date=${dateString}&direction=1`,
+        );
+        const sunriseData = await sunriseRes.json();
+
+        // Fetch sunset
+        const sunsetRes = await fetch(
+          `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=${planet}&date=${dateString}&direction=-1`,
+        );
+        const sunsetData = await sunsetRes.json();
+
+        // Fetch retrograde status
+        const retrogradeRes = await fetch(
+          `/api/planet-retrograde?body=${planet}&date=${dateString}`,
+        );
+        const retrogradeData = await retrogradeRes.json();
+
+        currentData[planet] = {
+          sunrise: sunriseData.time,
+          sunset: sunsetData.time,
+          isRetrograde: retrogradeData.isRetrograde,
+        };
+      }
+      setPlanetData(currentData);
+    };
+
+    fetchPlanetData();
+  }, [now, observer]);
+
   const dateFmt = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -99,10 +151,30 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
 
   return (
     <span suppressHydrationWarning>
-      <time dateTime={now.toISOString()} aria-live="polite">
+      <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
         {dateFmt.format(now)} {timeFmt.format(now)}
       </time>
+      <table className="planetary-table">
+        <tbody>
+          {PLANETS.map((planet) => (
+            <tr key={planet}>
+              <td className="planetary-cell">{planet}</td>
+              <td>
+                {planetData[planet]?.isRetrograde === true ? (
+                  <span className="retrograde">Retrograde</span>
+                ) : (
+                  "Direct"
+                )}
+              </td>
+              <td>
+                Sunrise: {planetData[planet]?.sunrise ? new Date(planetData[planet].sunrise!).toLocaleTimeString(locale, { timeZone }) : "N/A"}
+                <br />
+                Sunset: {planetData[planet]?.sunset ? new Date(planetData[planet].sunset!).toLocaleTimeString(locale, { timeZone }) : "N/A"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </span>
   );
 }
-

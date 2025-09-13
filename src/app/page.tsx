@@ -7,8 +7,12 @@ import * as Astronomy from "@/components/astronomy";
 interface PlanetaryHour {
   hour: number;
   planet: string;
+  // Human-readable strings for display
   startTime: string;
   endTime: string;
+  // Machine-friendly times for logic/highlighting
+  startDate: Date;
+  endDate: Date;
   symbol: string;
   color: string;
 }
@@ -185,6 +189,8 @@ export default function Home() {
           hour12: true,
           timeZone,
         }),
+        startDate: hourStartTime,
+        endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
         color: "",
       });
@@ -209,6 +215,8 @@ export default function Home() {
           hour12: true,
           timeZone,
         }),
+        startDate: hourStartTime,
+        endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
         color: "",
       });
@@ -374,17 +382,37 @@ export default function Home() {
 
         <table className="hours-table" aria-label="Planetary hours">
           <tbody>
-            {planetaryHours.slice(0, 12).map((ph) => (
-              <tr key={ph.hour} className={ph.hour === 7 ? "current" : ""}>
-                <td>{ph.hour}</td>
-                <td>
-                  {ph.startTime} - {ph.endTime}
-                </td>
-                <td>
-                  {ph.planet} <span dangerouslySetInnerHTML={{ __html: PLANET_SYMBOLS[ph.planet] || "" }} />
-                </td>
-              </tr>
-            ))}
+            {(() => {
+              const showNightBlock =
+                planetaryHours.length >= 13 && sunsetTime
+                  ? now.getTime() >= new Date(sunsetTime).getTime()
+                  : false;
+              const visible = showNightBlock
+                ? planetaryHours.slice(12, 24)
+                : planetaryHours.slice(0, 12);
+              return visible.map((ph) => {
+                const isCurrent =
+                  ph.startDate && ph.endDate
+                    ? now >= ph.startDate && now < ph.endDate
+                    : false;
+                return (
+                  <tr key={ph.hour} className={isCurrent ? "current" : ""}>
+                    <td>{ph.hour}</td>
+                    <td>
+                      {ph.startTime} - {ph.endTime}
+                    </td>
+                    <td>
+                      {ph.planet}{" "}
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: PLANET_SYMBOLS[ph.planet] || "",
+                        }}
+                      />
+                    </td>
+                  </tr>
+                );
+              });
+            })()}
           </tbody>
         </table>
       </div>
