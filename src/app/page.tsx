@@ -26,6 +26,13 @@ interface PlanetInfo {
   highlightClass: string;
 }
 
+
+interface ObserverCoords {
+  latitude: number;
+  longitude: number;
+  height: number;
+}
+
 const CHALDEAN_ORDER = [
   "Saturn",
   "Jupiter",
@@ -117,6 +124,12 @@ const getMoonPhaseName = (elongation: number, fraction: number): string => {
   return waxing ? "Waxing Crescent" : "Waning Crescent";
 };
 
+const DEFAULT_OBSERVER: ObserverCoords = {
+  latitude: 41.8781,
+  longitude: -87.6298,
+  height: 180,
+};
+
 export default function Home() {
   const [planetaryHours, setPlanetaryHours] = useState<PlanetaryHour[]>([]);
   const [sunriseTime, setSunriseTime] = useState<Date | null>(null);
@@ -124,6 +137,10 @@ export default function Home() {
   const [nextSunriseTime, setNextSunriseTime] = useState<Date | null>(null);
   const [planetData, setPlanetData] = useState<PlanetInfo[]>([]);
   const [moonPhase, setMoonPhase] = useState<string | null>(null);
+  const [observer, setObserver] = useState<ObserverCoords>(DEFAULT_OBSERVER);
+  const [usingDeviceLocation, setUsingDeviceLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(true);
 
   const now = useNow(1000);
   const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
@@ -151,6 +168,50 @@ export default function Home() {
       }),
     [],
   );
+
+  const formatCoordinate = (value: number, positive: string, negative: string) =>
+    `${Math.abs(value).toFixed(2)} deg ${value >= 0 ? positive : negative}`;
+
+  const locationLabel = useMemo(() => {
+    if (isLocating) {
+      return "Detecting location...";
+    }
+
+    const latitudeLabel = formatCoordinate(observer.latitude, "N", "S");
+    const longitudeLabel = formatCoordinate(observer.longitude, "E", "W");
+
+    if (usingDeviceLocation && !locationError) {
+      return `${latitudeLabel}, ${longitudeLabel}`;
+    }
+
+    if (locationError) {
+      return `Default location - ${latitudeLabel}, ${longitudeLabel}`;
+    }
+
+    return `${latitudeLabel}, ${longitudeLabel}`;
+  }, [
+    observer.latitude,
+    observer.longitude,
+    usingDeviceLocation,
+    locationError,
+    isLocating,
+  ]);
+
+  const locationTitle = useMemo(() => {
+    if (isLocating) {
+      return "Detecting device location";
+    }
+
+    if (usingDeviceLocation && !locationError) {
+      return "Location detected from this device";
+    }
+
+    if (locationError) {
+      return `Using default coordinates: ${locationError}`;
+    }
+
+    return "Using default coordinates";
+  }, [isLocating, usingDeviceLocation, locationError]);
 
   const getDayOfWeek = (date: Date): number => date.getDay();
 
@@ -237,13 +298,58 @@ export default function Home() {
   };
 
   useEffect(() => {
+    let active = true;
+
+    if (!("geolocation" in navigator)) {
+      setLocationError("Geolocation not supported");
+      setUsingDeviceLocation(false);
+      setIsLocating(false);
+      setObserver(DEFAULT_OBSERVER);
+      return () => {
+        active = false;
+      };
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (!active) return;
+        const { latitude, longitude, altitude } = position.coords;
+        const height =
+          typeof altitude === "number" && Number.isFinite(altitude)
+            ? altitude
+            : DEFAULT_OBSERVER.height;
+        setObserver({
+          latitude,
+          longitude,
+          height,
+        });
+        setUsingDeviceLocation(true);
+        setLocationError(null);
+        setIsLocating(false);
+      },
+      (error) => {
+        if (!active) return;
+        setUsingDeviceLocation(false);
+        setLocationError(error.message || "Geolocation unavailable");
+        setObserver(DEFAULT_OBSERVER);
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10_000,
+        maximumAge: 300_000,
+      },
+    );
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     let canceled = false;
     const fetchSunriseSunset = async () => {
-      const observer = {
-        latitude: 41.8781,
-        longitude: -87.6298,
-        height: 180,
-      };
+      const coords = observer;
 
       const nowLocal = new Date();
       const midnight = new Date(nowLocal);
@@ -251,7 +357,7 @@ export default function Home() {
       const midday = new Date(midnight.getTime() + 12 * 3600_000);
       const tomorrowMidnight = new Date(midnight.getTime() + 24 * 3600_000);
 
-      const baseQuery = `latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=Sol`;
+      const baseQuery = `latitude=${coords.latitude}&longitude=${coords.longitude}&height=${coords.height}&body=Sol`;
 
       try {
         const [sunriseRes, sunsetRes, nextSunriseRes] = await Promise.all([
@@ -296,7 +402,7 @@ export default function Home() {
     return () => {
       canceled = true;
     };
-  }, [dayKey]);
+  }, [dayKey, observer]);
 
   useEffect(() => {
     const nowLocal = new Date();
@@ -407,7 +513,7 @@ export default function Home() {
               {headerDateFmt.format(now)}
             </time>
           </p>
-          <p className="header-location">Metairie, LA</p>
+          <p className="header-location" aria-live="polite" title={locationTitle}>{locationLabel}</p>
         </div>
         <div className="header-right">
           <p className="header-time">
@@ -498,5 +604,4 @@ export default function Home() {
     </main>
   );
 }
-
 
