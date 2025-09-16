@@ -89,28 +89,46 @@ const getZodiacSign = (
 };
 
 // Astronomy.MoonPhase returns elongation in degrees [0,360):
-// 0=new, 90=first quarter, 180=full, 270=third quarter.
-const getMoonPhaseName = (elongation: number): string => {
-  const x = ((elongation % 360) + 360) % 360;
-  if (x < 22.5) return "New Moon";
-  if (x < 67.5) return "Waxing Crescent";
-  if (x < 112.5) return "First Quarter";
-  if (x < 157.5) return "Waxing Gibbous";
-  if (x < 202.5) return "Full Moon";
-  if (x < 247.5) return "Waning Gibbous";
-  if (x < 292.5) return "Third Quarter";
-  if (x < 337.5) return "Waning Crescent";
-  return "New Moon";
+// 0 = new, 90 = first quarter, 180 = full, 270 = third quarter.
+const NEW_MOON_THRESHOLD = 0.03;
+const FULL_MOON_THRESHOLD = 0.97;
+const QUARTER_LOWER_THRESHOLD = 0.45;
+const QUARTER_UPPER_THRESHOLD = 0.55;
+
+const getMoonPhaseName = (elongation: number, fraction: number): string => {
+  const normalized = ((elongation % 360) + 360) % 360;
+  const waxing = normalized <= 180;
+  const clampedFraction = Math.min(Math.max(fraction, 0), 1);
+
+  if (clampedFraction <= NEW_MOON_THRESHOLD) return "New Moon";
+  if (clampedFraction >= FULL_MOON_THRESHOLD) return "Full Moon";
+
+  if (
+    clampedFraction >= QUARTER_LOWER_THRESHOLD &&
+    clampedFraction <= QUARTER_UPPER_THRESHOLD
+  ) {
+    return waxing ? "First Quarter" : "Third Quarter";
+  }
+
+  if (clampedFraction > QUARTER_UPPER_THRESHOLD) {
+    return waxing ? "Waxing Gibbous" : "Waning Gibbous";
+  }
+
+  return waxing ? "Waxing Crescent" : "Waning Crescent";
 };
 
 export default function Home() {
   const [planetaryHours, setPlanetaryHours] = useState<PlanetaryHour[]>([]);
   const [sunriseTime, setSunriseTime] = useState<Date | null>(null);
   const [sunsetTime, setSunsetTime] = useState<Date | null>(null);
+  const [nextSunriseTime, setNextSunriseTime] = useState<Date | null>(null);
   const [planetData, setPlanetData] = useState<PlanetInfo[]>([]);
   const [moonPhase, setMoonPhase] = useState<string | null>(null);
 
   const now = useNow(1000);
+  const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+    now.getDate(),
+  ).padStart(2, "0")}`;
 
   // Formatters for local date/time using system locale/time zone
   const headerDateFmt = useMemo(
@@ -152,13 +170,18 @@ export default function Home() {
   const calculatePlanetaryHours = (
     sunrise: Date,
     sunset: Date,
+    nextSunrise: Date,
     startingPlanet: string,
     locale?: string,
     timeZone?: string,
   ): PlanetaryHour[] => {
     const hours: PlanetaryHour[] = [];
     const dayDuration = sunset.getTime() - sunrise.getTime();
-    const nightDuration = sunrise.getTime() + 24 * 3600_000 - sunset.getTime();
+    const nightDuration = nextSunrise.getTime() - sunset.getTime();
+
+    if (dayDuration <= 0 || nightDuration <= 0) {
+      return hours;
+    }
 
     const dayHourLength = dayDuration / 12;
     const nightHourLength = nightDuration / 12;
@@ -170,6 +193,14 @@ export default function Home() {
     const getPlanetForHour = (hourIndex: number) =>
       planetOrder[(startIndex + hourIndex) % planetOrder.length];
 
+    const formatLocale = locale ?? undefined;
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      ...(timeZone ? { timeZone } : {}),
+    };
+
     for (let i = 0; i < 12; i++) {
       const hourStartTime = new Date(sunrise.getTime() + i * dayHourLength);
       const hourEndTime = new Date(sunrise.getTime() + (i + 1) * dayHourLength);
@@ -177,18 +208,8 @@ export default function Home() {
       hours.push({
         hour: i + 1,
         planet,
-        startTime: hourStartTime.toLocaleTimeString(locale, {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-          timeZone,
-        }),
-        endTime: hourEndTime.toLocaleTimeString(locale, {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-          timeZone,
-        }),
+        startTime: hourStartTime.toLocaleTimeString(formatLocale, formatOptions),
+        endTime: hourEndTime.toLocaleTimeString(formatLocale, formatOptions),
         startDate: hourStartTime,
         endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
@@ -203,18 +224,8 @@ export default function Home() {
       hours.push({
         hour: i + 13,
         planet,
-        startTime: hourStartTime.toLocaleTimeString(locale, {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-          timeZone,
-        }),
-        endTime: hourEndTime.toLocaleTimeString(locale, {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-          timeZone,
-        }),
+        startTime: hourStartTime.toLocaleTimeString(formatLocale, formatOptions),
+        endTime: hourEndTime.toLocaleTimeString(formatLocale, formatOptions),
         startDate: hourStartTime,
         endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
@@ -226,34 +237,83 @@ export default function Home() {
   };
 
   useEffect(() => {
+    let canceled = false;
     const fetchSunriseSunset = async () => {
-      const dateString = now.toISOString();
       const observer = {
         latitude: 41.8781,
         longitude: -87.6298,
         height: 180,
       };
 
-      const sunriseRes = await fetch(
-        `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=Sol&date=${dateString}&direction=1`,
-      );
-      const sunriseData = await sunriseRes.json();
-      const sunsetRes = await fetch(
-        `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=Sol&date=${dateString}&direction=-1`,
-      );
-      const sunsetData = await sunsetRes.json();
+      const nowLocal = new Date();
+      const midnight = new Date(nowLocal);
+      midnight.setHours(0, 0, 0, 0);
+      const midday = new Date(midnight.getTime() + 12 * 3600_000);
+      const tomorrowMidnight = new Date(midnight.getTime() + 24 * 3600_000);
 
-      if (sunriseData.time) setSunriseTime(new Date(sunriseData.time));
-      if (sunsetData.time) setSunsetTime(new Date(sunsetData.time));
+      const baseQuery = `latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=Sol`;
+
+      try {
+        const [sunriseRes, sunsetRes, nextSunriseRes] = await Promise.all([
+          fetch(
+            `/api/sunrise-sunset?${baseQuery}&date=${midnight.toISOString()}&direction=1`,
+          ),
+          fetch(
+            `/api/sunrise-sunset?${baseQuery}&date=${midday.toISOString()}&direction=-1`,
+          ),
+          fetch(
+            `/api/sunrise-sunset?${baseQuery}&date=${tomorrowMidnight.toISOString()}&direction=1`,
+          ),
+        ]);
+
+        if (!sunriseRes.ok || !sunsetRes.ok || !nextSunriseRes.ok) {
+          throw new Error("Failed to fetch sun events");
+        }
+
+        const [sunriseData, sunsetData, nextSunriseData] = await Promise.all([
+          sunriseRes.json(),
+          sunsetRes.json(),
+          nextSunriseRes.json(),
+        ]);
+
+        if (canceled) return;
+
+        setSunriseTime(sunriseData.time ? new Date(sunriseData.time) : null);
+        setSunsetTime(sunsetData.time ? new Date(sunsetData.time) : null);
+        setNextSunriseTime(
+          nextSunriseData.time ? new Date(nextSunriseData.time) : null,
+        );
+      } catch (error) {
+        if (!canceled) {
+          console.error("Sunrise/sunset fetch failed", error);
+          setSunriseTime(null);
+          setSunsetTime(null);
+          setNextSunriseTime(null);
+        }
+      }
     };
     fetchSunriseSunset();
-  }, [now]);
+    return () => {
+      canceled = true;
+    };
+  }, [dayKey]);
 
   useEffect(() => {
     const nowLocal = new Date();
     const astronomyTime = Astronomy.MakeTime(nowLocal);
     const elong = Astronomy.MoonPhase(astronomyTime);
-    setMoonPhase(getMoonPhaseName(elong));
+    let moonPhaseName = "";
+    try {
+      const illumination = Astronomy.Illumination(
+        (Astronomy as any).Body.Moon,
+        astronomyTime,
+      );
+      moonPhaseName = getMoonPhaseName(elong, illumination.phase_fraction);
+    } catch (err) {
+      console.warn("Moon illumination calc failed", err);
+      moonPhaseName = getMoonPhaseName(elong, 0);
+    }
+    setMoonPhase(moonPhaseName);
 
     const planetsToFetch = [
       "Sol",
@@ -321,13 +381,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (sunriseTime && sunsetTime) {
-      const startingPlanet = getStartingPlanet(getDayOfWeek(now));
+    if (sunriseTime && sunsetTime && nextSunriseTime) {
+      const startingPlanet = getStartingPlanet(getDayOfWeek(sunriseTime));
+      const { locale: resolvedLocale, timeZone } = Intl.DateTimeFormat().resolvedOptions();
       setPlanetaryHours(
-        calculatePlanetaryHours(sunriseTime, sunsetTime, startingPlanet),
+        calculatePlanetaryHours(
+          sunriseTime,
+          sunsetTime,
+          nextSunriseTime,
+          startingPlanet,
+          resolvedLocale,
+          timeZone,
+        ),
       );
     }
-  }, [now, sunriseTime, sunsetTime]);
+  }, [sunriseTime, sunsetTime, nextSunriseTime]);
 
   return (
     <main className="page-container">
@@ -361,7 +429,7 @@ export default function Home() {
                 </td>
                 <td>
                   {planet.name === "Luna" ? (
-                    <span>{moonPhase ?? ""}</span>
+                    <span className="moon-phase">{moonPhase ?? ""}</span>
                   ) : planet.isRetrograde ? (
                     <span className="retrograde-text">Retrograde</span>
                   ) : (
@@ -384,8 +452,9 @@ export default function Home() {
           <tbody>
             {(() => {
               const showNightBlock =
-                planetaryHours.length >= 13 && sunsetTime
-                  ? now.getTime() >= new Date(sunsetTime).getTime()
+                planetaryHours.length >= 13 && sunriseTime && sunsetTime
+                  ? now.getTime() < sunriseTime.getTime() ||
+                    now.getTime() >= sunsetTime.getTime()
                   : false;
               const visible = showNightBlock
                 ? planetaryHours.slice(12, 24)
@@ -395,8 +464,14 @@ export default function Home() {
                   ph.startDate && ph.endDate
                     ? now >= ph.startDate && now < ph.endDate
                     : false;
+                const rowClassNames = [
+                  isCurrent ? "current" : "",
+                  isCurrent ? `${ph.planet.toLowerCase()}-highlight` : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
                 return (
-                  <tr key={ph.hour} className={isCurrent ? "current" : ""}>
+                  <tr key={ph.hour} className={rowClassNames}>
                     <td>{ph.hour}</td>
                     <td>
                       {ph.startTime} - {ph.endTime}
@@ -423,4 +498,5 @@ export default function Home() {
     </main>
   );
 }
+
 
