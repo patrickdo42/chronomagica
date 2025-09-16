@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNow } from "@/components/Clock";
 import * as Astronomy from "@/components/astronomy";
 
@@ -42,6 +42,19 @@ const CHALDEAN_ORDER = [
   "Mercury",
   "Luna",
 ];
+
+const PLANET_COLORS: Record<string, string> = {
+  Sol: "#ffedb6",
+  Luna: "#dddbd4",
+  Mercury: "#fff8bc",
+  Venus: "#d9ffd9",
+  Mars: "#f8dddd",
+  Jupiter: "#d2eaf8",
+  Saturn: "#c8c8c8",
+  Uranus: "#ded6ff",
+  Neptune: "#f2d1f8",
+  Pluto: "#f4d4c7",
+};
 
 const PLANET_SYMBOLS: Record<string, string> = {
   Sol: "&#9737;",
@@ -137,12 +150,14 @@ export default function Home() {
   const [nextSunriseTime, setNextSunriseTime] = useState<Date | null>(null);
   const [planetData, setPlanetData] = useState<PlanetInfo[]>([]);
   const [moonPhase, setMoonPhase] = useState<string | null>(null);
+  const [sunFetchTrigger, setSunFetchTrigger] = useState(0);
   const [observer, setObserver] = useState<ObserverCoords>(DEFAULT_OBSERVER);
   const [usingDeviceLocation, setUsingDeviceLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(true);
 
   const now = useNow(1000);
+  const sunRefreshRequested = useRef(false);
   const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
     now.getDate(),
   ).padStart(2, "0")}`;
@@ -274,7 +289,7 @@ export default function Home() {
         startDate: hourStartTime,
         endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
-        color: "",
+        color: PLANET_COLORS[planet] || "",
       });
     }
 
@@ -290,7 +305,7 @@ export default function Home() {
         startDate: hourStartTime,
         endDate: hourEndTime,
         symbol: PLANET_SYMBOLS[planet] || "",
-        color: "",
+        color: PLANET_COLORS[planet] || "",
       });
     }
 
@@ -352,49 +367,66 @@ export default function Home() {
       const coords = observer;
 
       const nowLocal = new Date();
-      const midnight = new Date(nowLocal);
-      midnight.setHours(0, 0, 0, 0);
-      const midday = new Date(midnight.getTime() + 12 * 3600_000);
-      const tomorrowMidnight = new Date(midnight.getTime() + 24 * 3600_000);
+      const sunriseSearchDate = new Date(nowLocal.getTime() - 12 * 3600_000);
 
       const baseQuery = `latitude=${coords.latitude}&longitude=${coords.longitude}&height=${coords.height}&body=Sol`;
 
       try {
-        const [sunriseRes, sunsetRes, nextSunriseRes] = await Promise.all([
-          fetch(
-            `/api/sunrise-sunset?${baseQuery}&date=${midnight.toISOString()}&direction=1`,
-          ),
-          fetch(
-            `/api/sunrise-sunset?${baseQuery}&date=${midday.toISOString()}&direction=-1`,
-          ),
-          fetch(
-            `/api/sunrise-sunset?${baseQuery}&date=${tomorrowMidnight.toISOString()}&direction=1`,
-          ),
-        ]);
+        const sunriseRes = await fetch(
+          `/api/sunrise-sunset?${baseQuery}&date=${sunriseSearchDate.toISOString()}&direction=1`,
+        );
 
-        if (!sunriseRes.ok || !sunsetRes.ok || !nextSunriseRes.ok) {
-          throw new Error("Failed to fetch sun events");
+        if (!sunriseRes.ok) {
+          throw new Error("Failed to fetch sunrise event");
         }
 
-        const [sunriseData, sunsetData, nextSunriseData] = await Promise.all([
-          sunriseRes.json(),
-          sunsetRes.json(),
-          nextSunriseRes.json(),
-        ]);
+        const sunriseData = await sunriseRes.json();
+        const sunriseDate = sunriseData.time ? new Date(sunriseData.time) : null;
 
         if (canceled) return;
 
-        setSunriseTime(sunriseData.time ? new Date(sunriseData.time) : null);
-        setSunsetTime(sunsetData.time ? new Date(sunsetData.time) : null);
-        setNextSunriseTime(
-          nextSunriseData.time ? new Date(nextSunriseData.time) : null,
-        );
+        let sunsetDate: Date | null = null;
+        let nextSunriseDate: Date | null = null;
+
+        if (sunriseDate) {
+          const sunsetSearchDate = new Date(sunriseDate.getTime() + 60 * 60_000);
+          const nextSunriseSearchDate = new Date(sunriseDate.getTime() + 18 * 3600_000);
+
+          const [sunsetRes, nextSunriseRes] = await Promise.all([
+            fetch(
+              `/api/sunrise-sunset?${baseQuery}&date=${sunsetSearchDate.toISOString()}&direction=-1`,
+            ),
+            fetch(
+              `/api/sunrise-sunset?${baseQuery}&date=${nextSunriseSearchDate.toISOString()}&direction=1`,
+            ),
+          ]);
+
+          if (!sunsetRes.ok || !nextSunriseRes.ok) {
+            throw new Error("Failed to fetch sunset or next sunrise events");
+          }
+
+          const [sunsetData, nextSunriseData] = await Promise.all([
+            sunsetRes.json(),
+            nextSunriseRes.json(),
+          ]);
+
+          sunsetDate = sunsetData.time ? new Date(sunsetData.time) : null;
+          nextSunriseDate = nextSunriseData.time ? new Date(nextSunriseData.time) : null;
+        }
+
+        if (canceled) return;
+
+        setSunriseTime(sunriseDate);
+        setSunsetTime(sunsetDate);
+        setNextSunriseTime(nextSunriseDate);
+        sunRefreshRequested.current = false;
       } catch (error) {
         if (!canceled) {
           console.error("Sunrise/sunset fetch failed", error);
           setSunriseTime(null);
           setSunsetTime(null);
           setNextSunriseTime(null);
+          sunRefreshRequested.current = false;
         }
       }
     };
@@ -402,7 +434,23 @@ export default function Home() {
     return () => {
       canceled = true;
     };
-  }, [dayKey, observer]);
+  }, [dayKey, observer, sunFetchTrigger]);
+
+  useEffect(() => {
+    if (!nextSunriseTime) {
+      sunRefreshRequested.current = false;
+      return;
+    }
+
+    if (now.getTime() >= nextSunriseTime.getTime()) {
+      if (!sunRefreshRequested.current) {
+        sunRefreshRequested.current = true;
+        setSunFetchTrigger((value) => value + 1);
+      }
+    } else {
+      sunRefreshRequested.current = false;
+    }
+  }, [now, nextSunriseTime]);
 
   useEffect(() => {
     const nowLocal = new Date();
@@ -570,14 +618,18 @@ export default function Home() {
                   ph.startDate && ph.endDate
                     ? now >= ph.startDate && now < ph.endDate
                     : false;
-                const rowClassNames = [
-                  isCurrent ? "current" : "",
-                  isCurrent ? `${ph.planet.toLowerCase()}-highlight` : "",
-                ]
+                const highlightClass = `${ph.planet.toLowerCase()}-highlight`;
+                const rowClassNames = [highlightClass, isCurrent ? "current" : ""]
                   .filter(Boolean)
                   .join(" ");
+                const rowStyle = ph.color
+                  ? {
+                      backgroundColor: ph.color,
+                      ...(isCurrent ? { boxShadow: "inset 0 0 0 2px var(--brand-purple)" } : {}),
+                    }
+                  : undefined;
                 return (
-                  <tr key={ph.hour} className={rowClassNames}>
+                  <tr key={ph.hour} className={rowClassNames} style={rowStyle} aria-current={isCurrent ? "true" : undefined}>
                     <td>{ph.hour}</td>
                     <td>
                       {ph.startTime} - {ph.endTime}
@@ -604,4 +656,5 @@ export default function Home() {
     </main>
   );
 }
+
 

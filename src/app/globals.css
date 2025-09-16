@@ -234,7 +234,7 @@ body.dark-mode .neutral {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Page scaffold for screenshot-like layout */
+/* page scaffold */
 .page-container {
   display: block;
   padding: 28px 28px 32px;
