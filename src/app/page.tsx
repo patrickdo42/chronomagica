@@ -66,7 +66,7 @@ const PLANET_SYMBOLS: Record<string, string> = {
   Saturn: "&#9796;",
   Uranus: "&#9797;",
   Neptune: "&#9798;",
-  Pluto: "&#9935;",
+  Pluto: "&#11219;",
 };
 
 const ZODIAC_SIGNS: string[] = [
