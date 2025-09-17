@@ -155,6 +155,17 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
         {dateFmt.format(now)} {timeFmt.format(now)}
       </time>
       <table className="planetary-table">
+        <thead>
+          <tr>
+            <th colSpan={3}>
+              {now.getHours() >= 1 && now.getHours() <= 12 ? (
+                <span>&#9728; Hours 1-12</span>
+              ) : (
+                <span>&#9789; Hours 13-24</span>
+              )}
+            </th>
+          </tr>
+        </thead>
         <tbody>
           {PLANETS.map((planet) => (
             <tr key={planet}>

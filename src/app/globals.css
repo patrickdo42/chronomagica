@@ -125,6 +125,10 @@ body.dark-mode .lucky {
   color: #66ff66;
 }
 
+body.dark-mode .unlucky {
+  color: #ff6666;
+}
+
 body.dark-mode .neutral {
   color: #ccc;
 }
@@ -422,35 +426,15 @@ h2, h3 {
 .hours-table td:nth-child(1) { width: 10%; }
 .hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
 .hours-table td:nth-child(3) { text-align: right; width: 35%; }
-.hours-table tbody tr.sol-highlight { background-color: #ffedb6; }
-.hours-table tbody tr.luna-highlight { background-color: #dddbd4; }
-.hours-table tbody tr.mercury-highlight { background-color: #fff8bc; }
-.hours-table tbody tr.venus-highlight { background-color: #d9ffd9; }
-.hours-table tbody tr.mars-highlight { background-color: #f8dddd; }
-.hours-table tbody tr.jupiter-highlight { background-color: #d2eaf8; }
-.hours-table tbody tr.saturn-highlight { background-color: #c8c8c8; }
-.hours-table tbody tr.uranus-highlight { background-color: #ded6ff; }
-.hours-table tbody tr.neptune-highlight { background-color: #f2d1f8; }
-.hours-table tbody tr.pluto-highlight { background-color: #f4d4c7; }
 
 /* Dark mode variants for hours table */
 body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
 body.dark-mode .hours-table tbody tr:nth-child(even) { background: #343434; }
-body.dark-mode .hours-table tbody tr.sol-highlight { background-color: #ffedb6; }
-body.dark-mode .hours-table tbody tr.luna-highlight { background-color: #dddbd4; }
-body.dark-mode .hours-table tbody tr.mercury-highlight { background-color: #fff8bc; }
-body.dark-mode .hours-table tbody tr.venus-highlight { background-color: #d9ffd9; }
-body.dark-mode .hours-table tbody tr.mars-highlight { background-color: #f8dddd; }
-body.dark-mode .hours-table tbody tr.jupiter-highlight { background-color: #d2eaf8; }
-body.dark-mode .hours-table tbody tr.saturn-highlight { background-color: #c8c8c8; }
-body.dark-mode .hours-table tbody tr.uranus-highlight { background-color: #ded6ff; }
-body.dark-mode .hours-table tbody tr.neptune-highlight { background-color: #f2d1f8; }
-body.dark-mode .hours-table tbody tr.pluto-highlight { background-color: #f4d4c7; }
 body.dark-mode .hours-table .current { color: inherit; }
 
-.lucky { color: #009626; }
-.unlucky { color: #ff0036; }
-.neutral { color: #000; }
+.daily-luck-text.lucky { color: #009626; }
+.daily-luck-text.unlucky { color: #ff0036; }
+.daily-luck-text.neutral { color: #000; }
 
 .planetary-info-table .moon-phase {
   color: var(--brand-purple);
@@ -747,30 +731,10 @@ body.dark-mode .hours-table .current { color: inherit; }
 .hours-table td:nth-child(1) { width: 10%; }
 .hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
 .hours-table td:nth-child(3) { text-align: right; width: 35%; }
-.hours-table tbody tr.sol-highlight { background-color: #ffedb6; }
-.hours-table tbody tr.luna-highlight { background-color: #dddbd4; }
-.hours-table tbody tr.mercury-highlight { background-color: #fff8bc; }
-.hours-table tbody tr.venus-highlight { background-color: #d9ffd9; }
-.hours-table tbody tr.mars-highlight { background-color: #f8dddd; }
-.hours-table tbody tr.jupiter-highlight { background-color: #d2eaf8; }
-.hours-table tbody tr.saturn-highlight { background-color: #c8c8c8; }
-.hours-table tbody tr.uranus-highlight { background-color: #ded6ff; }
-.hours-table tbody tr.neptune-highlight { background-color: #f2d1f8; }
-.hours-table tbody tr.pluto-highlight { background-color: #f4d4c7; }
 
 /* Dark mode variants for hours table */
 body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
 body.dark-mode .hours-table tbody tr:nth-child(even) { background: #343434; }
-body.dark-mode .hours-table tbody tr.sol-highlight { background-color: #ffedb6; }
-body.dark-mode .hours-table tbody tr.luna-highlight { background-color: #dddbd4; }
-body.dark-mode .hours-table tbody tr.mercury-highlight { background-color: #fff8bc; }
-body.dark-mode .hours-table tbody tr.venus-highlight { background-color: #d9ffd9; }
-body.dark-mode .hours-table tbody tr.mars-highlight { background-color: #f8dddd; }
-body.dark-mode .hours-table tbody tr.jupiter-highlight { background-color: #d2eaf8; }
-body.dark-mode .hours-table tbody tr.saturn-highlight { background-color: #c8c8c8; }
-body.dark-mode .hours-table tbody tr.uranus-highlight { background-color: #ded6ff; }
-body.dark-mode .hours-table tbody tr.neptune-highlight { background-color: #f2d1f8; }
-body.dark-mode .hours-table tbody tr.pluto-highlight { background-color: #f4d4c7; }
 body.dark-mode .hours-table .current { color: inherit; }
 
 .lucky { color: #009626; }

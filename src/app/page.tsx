@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNow } from "@/components/Clock";
 import * as Astronomy from "@/components/astronomy";
+import { getDailyLuck } from "@/utils/moonLogic";
 
 interface PlanetaryHour {
   hour: number;
@@ -155,6 +156,7 @@ export default function Home() {
   const [usingDeviceLocation, setUsingDeviceLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(true);
+  const [dailyLuck, setDailyLuck] = useState<'lucky' | 'unlucky' | 'neutral' | null>(null);
 
   const now = useNow(1000);
   const sunRefreshRequested = useRef(false);
@@ -367,7 +369,7 @@ export default function Home() {
       const coords = observer;
 
       const nowLocal = new Date();
-      const sunriseSearchDate = new Date(nowLocal.getTime() - 12 * 3600_000);
+      const sunriseSearchDate = new Date(nowLocal.getFullYear(), nowLocal.getMonth(), nowLocal.getDate(), 0, 0, 0, 0);
 
       const baseQuery = `latitude=${coords.latitude}&longitude=${coords.longitude}&height=${coords.height}&body=Sol`;
 
@@ -532,7 +534,11 @@ export default function Home() {
     };
 
     run();
-  }, []);
+  }, [now]);
+
+  useEffect(() => {
+    setDailyLuck(getDailyLuck(now));
+  }, [now]);
 
   useEffect(() => {
     if (sunriseTime && sunsetTime && nextSunriseTime) {
@@ -622,12 +628,13 @@ export default function Home() {
                 const rowClassNames = [highlightClass, isCurrent ? "current" : ""]
                   .filter(Boolean)
                   .join(" ");
-                const rowStyle = ph.color
+                const rowStyle = isCurrent
                   ? {
                       backgroundColor: ph.color,
-                      ...(isCurrent ? { boxShadow: "inset 0 0 0 2px var(--brand-purple)" } : {}),
                     }
-                  : undefined;
+                  : { backgroundColor: "#ffffff" };
+
+
                 return (
                   <tr key={ph.hour} className={rowClassNames} style={rowStyle} aria-current={isCurrent ? "true" : undefined}>
                     <td>{ph.hour}</td>
@@ -650,11 +657,11 @@ export default function Home() {
         </table>
       </div>
 
-      <p className="lucky" style={{ textAlign: "center", fontSize: "1.4rem", marginTop: 16 }}>
-        Today is lucky.
-      </p>
+      {dailyLuck && (
+        <p className={`daily-luck-text ${dailyLuck}`} style={{ textAlign: "center", fontSize: "1.4rem", marginTop: 16 }}>
+          Today is {dailyLuck}.
+        </p>
+      )}
     </main>
   );
 }
-
-
