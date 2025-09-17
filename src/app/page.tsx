@@ -157,6 +157,8 @@ export default function Home() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(true);
   const [dailyLuck, setDailyLuck] = useState<'lucky' | 'unlucky' | 'neutral' | null>(null);
+  const [clientLocale, setClientLocale] = useState<string | undefined>(undefined);
+  const [clientTimeZone, setClientTimeZone] = useState<string | undefined>(undefined);
 
   const now = useNow(1000);
   const sunRefreshRequested = useRef(false);
@@ -164,26 +166,38 @@ export default function Home() {
     now.getDate(),
   ).padStart(2, "0")}`;
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const resolved = Intl.DateTimeFormat().resolvedOptions();
+    setClientLocale(resolved.locale);
+    setClientTimeZone(resolved.timeZone);
+  }, []);
+
   // Formatters for local date/time using system locale/time zone
   const headerDateFmt = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(clientLocale ?? undefined, {
         weekday: "long",
         month: "long",
         day: "numeric",
         year: "numeric",
+        timeZone: clientTimeZone ?? undefined,
       }),
-    [],
+    [clientLocale, clientTimeZone],
   );
 
   const headerTimeFmt = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(clientLocale ?? undefined, {
         hour: "numeric",
         minute: "2-digit",
         hour12: true,
+        timeZone: clientTimeZone ?? undefined,
       }),
-    [],
+    [clientLocale, clientTimeZone],
   );
 
   const formatCoordinate = (value: number, positive: string, negative: string) =>
@@ -316,6 +330,8 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
+    let watchId: number | null = null;
+    let hadSuccessfulFix = false;
 
     if (!("geolocation" in navigator)) {
       setLocationError("Geolocation not supported");
@@ -327,43 +343,58 @@ export default function Home() {
       };
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        if (!active) return;
-        const { latitude, longitude, altitude } = position.coords;
-        const height =
-          typeof altitude === "number" && Number.isFinite(altitude)
-            ? altitude
-            : DEFAULT_OBSERVER.height;
-        setObserver({
-          latitude,
-          longitude,
-          height,
-        });
-        setUsingDeviceLocation(true);
-        setLocationError(null);
-        setIsLocating(false);
-      },
-      (error) => {
-        if (!active) return;
-        setUsingDeviceLocation(false);
-        setLocationError(error.message || "Geolocation unavailable");
-        setObserver(DEFAULT_OBSERVER);
-        setIsLocating(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10_000,
-        maximumAge: 300_000,
-      },
-    );
+    const options: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 10_000,
+      maximumAge: 300_000,
+    };
+
+    const handleSuccess = (position: GeolocationPosition) => {
+      if (!active) return;
+      const { latitude, longitude, altitude } = position.coords;
+      const height =
+        typeof altitude === "number" && Number.isFinite(altitude)
+          ? altitude
+          : DEFAULT_OBSERVER.height;
+      setObserver({
+        latitude,
+        longitude,
+        height,
+      });
+      setUsingDeviceLocation(true);
+      setLocationError(null);
+      setIsLocating(false);
+      hadSuccessfulFix = true;
+    };
+
+    const handleError = (error: GeolocationPositionError) => {
+      if (!active) return;
+      if (hadSuccessfulFix) {
+        console.warn("Geolocation update failed after initial fix", error);
+        return;
+      }
+      setUsingDeviceLocation(false);
+      setLocationError(error.message || "Geolocation unavailable");
+      setObserver(DEFAULT_OBSERVER);
+      setIsLocating(false);
+    };
+
+    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
+    watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, options);
 
     return () => {
       active = false;
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
     };
   }, []);
 
   useEffect(() => {
+    if (isLocating) {
+      return;
+    }
+
     let canceled = false;
     const fetchSunriseSunset = async () => {
       const coords = observer;
@@ -436,7 +467,7 @@ export default function Home() {
     return () => {
       canceled = true;
     };
-  }, [dayKey, observer, sunFetchTrigger]);
+  }, [dayKey, isLocating, observer, sunFetchTrigger]);
 
   useEffect(() => {
     if (!nextSunriseTime) {

@@ -94,7 +94,7 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
   useEffect(() => {
     const fetchPlanetData = async () => {
       const currentData: Record<string, PlanetData> = {};
-      const dateString = now.toISOString();
+      const dateString = now.toLocaleDateString('en-CA');
 
       for (const planet of PLANETS) {
         // Fetch sunrise
