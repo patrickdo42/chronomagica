@@ -86,18 +86,18 @@ const ZODIAC_SIGNS: string[] = [
 ];
 
 const ZODIAC_SYMBOLS: Record<string, string> = {
-  Aries: "&#9800;",
-  Taurus: "&#9801;",
-  Gemini: "&#9802;",
-  Cancer: "&#9803;",
-  Leo: "&#9804;",
-  Virgo: "&#9805;",
-  Libra: "&#9806;",
-  Scorpio: "&#9807;",
-  Sagittarius: "&#9808;",
-  Capricorn: "&#9809;",
-  Aquarius: "&#9810;",
-  Pisces: "&#9811;",
+  Aries: "♈︎",
+  Taurus: "♉︎",
+  Gemini: "♊︎",
+  Cancer: "♋︎",
+  Leo: "♌︎",
+  Virgo: "♍︎",
+  Libra: "♎︎",
+  Scorpio: "♏︎",
+  Sagittarius: "♐︎",
+  Capricorn: "♑︎",
+  Aquarius: "♒︎",
+  Pisces: "♓︎",
 };
 
 const getZodiacSign = (
@@ -609,6 +609,20 @@ export default function Home() {
         </table>
 
         <table className="hours-table" aria-label="Planetary hours">
+          <thead>
+            <tr>
+              <th colSpan={3} className="hours-table-header-symbol">
+                {(() => {
+                  const showNightBlock =
+                    planetaryHours.length >= 13 && sunriseTime && sunsetTime
+                      ? now.getTime() < sunriseTime.getTime() ||
+                        now.getTime() >= sunsetTime.getTime()
+                      : false;
+                  return showNightBlock ? "☾" : "☀";
+                })()}
+              </th>
+            </tr>
+          </thead>
           <tbody>
             {(() => {
               const showNightBlock =

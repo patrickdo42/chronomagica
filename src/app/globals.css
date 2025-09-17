@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -11,9 +11,6 @@
   --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   --row-sep: #efefef;
   --font-display: "Playfair Display", serif; /* Added font */
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -397,35 +394,27 @@ h2, h3 {
 .pluto-highlight { background-color: #f4d4c7; }
 
 /* Planet glyphs appended to first column (when only names are rendered) */
-.planetary-info-table tbody tr.mercury-highlight td:first-child::after { content: " ☿"; }
-.planetary-info-table tbody tr.venus-highlight td:first-child::after { content: " ♀"; }
-.planetary-info-table tbody tr.mars-highlight td:first-child::after { content: " ♂"; }
-.planetary-info-table tbody tr.jupiter-highlight td:first-child::after { content: " ♃"; }
-.planetary-info-table tbody tr.saturn-highlight td:first-child::after { content: " ♄"; }
-.planetary-info-table tbody tr.uranus-highlight td:first-child::after { content: " ♅"; }
-.planetary-info-table tbody tr.neptune-highlight td:first-child::after { content: " ♆"; }
-.planetary-info-table tbody tr.pluto-highlight td:first-child::after { content: " ⯓"; }
+.planetary-info-table tbody tr.mercury-highlight td:first-child::after { content: " â˜¿"; }
+.planetary-info-table tbody tr.venus-highlight td:first-child::after { content: " â™€"; }
+.planetary-info-table tbody tr.mars-highlight td:first-child::after { content: " â™‚"; }
+.planetary-info-table tbody tr.jupiter-highlight td:first-child::after { content: " â™ƒ"; }
+.planetary-info-table tbody tr.saturn-highlight td:first-child::after { content: " â™„"; }
+.planetary-info-table tbody tr.uranus-highlight td:first-child::after { content: " â™…"; }
+.planetary-info-table tbody tr.neptune-highlight td:first-child::after { content: " â™†"; }
+.planetary-info-table tbody tr.pluto-highlight td:first-child::after { content: " â¯“"; }
 
 /* Optional: if Sol/Luna appear in the table */
 .planetary-info-table tbody tr.sol-highlight td:first-child::after { content: " \2609"; } /* Sun symbol */
-.planetary-info-table tbody tr.luna-highlight td:first-child::after { content: " ☾"; }
+.planetary-info-table tbody tr.luna-highlight td:first-child::after { content: " â˜¾"; }
 
-.hours-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 16px;
-  border-radius: 8px;
-  overflow: hidden;
+
+.hours-table-header-symbol {
+  text-align: center;
+  font-size: 2.5rem; /* Adjust size as needed */
+  padding: 10px 0;
+  /* Removed background-color and color */
+  border-radius: 8px 8px 0 0; /* Rounded top corners */
 }
-
-.hours-table tbody tr:nth-child(odd) { background: #ececec; }
-.hours-table tbody tr:nth-child(even) { background: #d8d8d8; }
-.hours-table td { padding: 10px 12px; font-size: 1.1rem; }
-.hours-table .current { font-weight: inherit; }
-.hours-table td:nth-child(1) { width: 10%; }
-.hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
-.hours-table td:nth-child(3) { text-align: right; width: 35%; }
 
 /* Dark mode variants for hours table */
 body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
@@ -596,6 +585,7 @@ body.dark-mode .hours-table .current { color: inherit; }
 }
 
 .planetary-data-table td:nth-child(2) {
+  font-weight: bold;
   text-align: center;
   width: 40%;
 }
@@ -728,7 +718,7 @@ body.dark-mode .hours-table .current { color: inherit; }
 .hours-table tbody tr:nth-child(even) { background: #d8d8d8; }
 .hours-table td { padding: 10px 12px; font-size: 1.1rem; }
 .hours-table .current { font-weight: inherit; }
-.hours-table td:nth-child(1) { width: 10%; }
+.hours-table td:nth-child(1) { width: 10%; text-align: center; }
 .hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
 .hours-table td:nth-child(3) { text-align: right; width: 35%; }
 
@@ -740,3 +730,5 @@ body.dark-mode .hours-table .current { color: inherit; }
 .lucky { color: #009626; }
 .unlucky { color: #ff0036; }
 .neutral { color: #000; }
+
+
