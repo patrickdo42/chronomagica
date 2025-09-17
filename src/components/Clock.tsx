@@ -85,47 +85,71 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
   const [planetData, setPlanetData] = useState<Record<string, PlanetData>>({});
 
   // Default observer location (e.g., Chicago) - can be made dynamic later
-  const observer = useMemo(() => ({
-    latitude: 41.8781,
-    longitude: -87.6298,
-    height: 180, // meters above sea level
-  }), []);
+  const [coords, setCoords] = useState({
+    latitude: 41.8781,   // fallback (Chicago, IL)
+    longitude: -87.6298
+  });
 
   useEffect(() => {
-    const fetchPlanetData = async () => {
-      const currentData: Record<string, PlanetData> = {};
-      const dateString = now.toLocaleDateString('en-CA');
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoords({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+        }
+      );
+    }
+  }, []);
 
-      for (const planet of PLANETS) {
-        // Fetch sunrise
-        const sunriseRes = await fetch(
-          `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=${planet}&date=${dateString}&direction=1`,
-        );
-        const sunriseData = await sunriseRes.json();
+  const observer = useMemo(
+    () => ({
+      latitude: coords.latitude,
+      longitude: coords.longitude
+    }),
+    [coords]
+  );
 
-        // Fetch sunset
-        const sunsetRes = await fetch(
-          `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&height=${observer.height}&body=${planet}&date=${dateString}&direction=-1`,
-        );
-        const sunsetData = await sunsetRes.json();
+  useEffect(() => {
+      const fetchPlanetData = async () => {
+        const currentData: Record<string, PlanetData> = {};
+        const dateString = now.toLocaleDateString('en-CA');
 
-        // Fetch retrograde status
-        const retrogradeRes = await fetch(
-          `/api/planet-retrograde?body=${planet}&date=${dateString}`,
-        );
-        const retrogradeData = await retrogradeRes.json();
+        for (const planet of PLANETS) {
+          // Fetch sunrise
+          const sunriseRes = await fetch(
+            `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&body=${planet}&date=${dateString}&direction=1`,
+          );
+          const sunriseData = await sunriseRes.json();
 
-        currentData[planet] = {
-          sunrise: sunriseData.time,
-          sunset: sunsetData.time,
-          isRetrograde: retrogradeData.isRetrograde,
-        };
-      }
-      setPlanetData(currentData);
-    };
+          // Fetch sunset
+          const sunsetRes = await fetch(
+            `/api/sunrise-sunset?latitude=${observer.latitude}&longitude=${observer.longitude}&body=${planet}&date=${dateString}&direction=-1`,
+          );
+          const sunsetData = await sunsetRes.json();
 
+          // Fetch retrograde status
+          const retrogradeRes = await fetch(
+            `/api/planet-retrograde?body=${planet}&date=${dateString}`,
+          );
+          const retrogradeData = await retrogradeRes.json();
+
+          currentData[planet] = {
+            sunrise: sunriseData.time,
+            sunset: sunsetData.time,
+            isRetrograde: retrogradeData.isRetrograde,
+          };
+        }
+        setPlanetData(currentData);
+      };
+
+    // Fetch data only when the date changes
     fetchPlanetData();
-  }, [now, observer]);
+  }, [now.getHours(), observer]);
 
   const dateFmt = useMemo(
     () =>
