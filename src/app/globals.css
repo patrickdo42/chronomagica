@@ -704,24 +704,45 @@ body.dark-mode .hours-table .current { color: inherit; }
   margin-left: 5px;
 }
 
-/* Specific styling for the planetary hours table */
 .hours-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 16px;
-  border-radius: 8px;
-  overflow: hidden;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
-.hours-table tbody tr:nth-child(odd) { background: #ececec; }
-.hours-table tbody tr:nth-child(even) { background: #d8d8d8; }
-.hours-table td { padding: 10px 12px; font-size: 1.1rem; }
-.hours-table .current { font-weight: inherit; }
-.hours-table td:nth-child(1) { width: 10%; text-align: center; }
-.hours-table td:nth-child(2) { text-align: center; width: 55%; font-family: var(--font-display), Georgia, serif; }
-.hours-table td:nth-child(3) { text-align: right; width: 35%; }
+.hours-table tbody tr:nth-child(odd) {
+  background: #ececec;
+}
 
+.hours-table tbody tr:nth-child(even) {
+  background: #d8d8d8;
+}
+
+.hours-table td {
+  padding: 10px 12px;
+  font-size: 1.1rem;
+}
+
+.hours-table .current {
+  font-weight: inherit;
+}
+
+/* Column alignment */
+.hours-table td:nth-child(1) {
+  width: 10%;
+  text-align: left;
+}
+
+.hours-table td:nth-child(2) {
+  width: 55%;
+  text-align: center;
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.hours-table td:nth-child(3) {
+  width: 35%;
+  text-align: right;
+}
 /* Dark mode variants for hours table */
 body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
 body.dark-mode .hours-table tbody tr:nth-child(even) { background: #343434; }

@@ -591,7 +591,7 @@ export default function Home() {
                   {planet.name === "Luna" ? (
                     <span className="moon-phase">{moonPhase ?? ""}</span>
                   ) : planet.isRetrograde ? (
-                    <span className="retrograde-text">Retrograde</span>
+                    <span className="retrograde-text">Retrograde ℞</span>
                   ) : (
                     ""
                   )}
