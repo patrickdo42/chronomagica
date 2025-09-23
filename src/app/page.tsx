@@ -45,16 +45,16 @@ const CHALDEAN_ORDER = [
 ];
 
 const PLANET_COLORS: Record<string, string> = {
-  Sol: "#ffedb6",
-  Luna: "#dddbd4",
-  Mercury: "#fff8bc",
-  Venus: "#d9ffd9",
-  Mars: "#f8dddd",
-  Jupiter: "#d2eaf8",
-  Saturn: "#c8c8c8",
-  Uranus: "#ded6ff",
-  Neptune: "#f2d1f8",
-  Pluto: "#f4d4c7",
+  Sol: "#ffd071",
+  Luna: "#d1d1d1",
+  Mercury: "#fff59c",
+  Venus: "#95f3ad",
+  Mars: "#ffc5c5",
+  Jupiter: "#9fdcff",
+  Saturn: "#a5a5a5",
+  Uranus: "#c9bcff",
+  Neptune: "#f9b6ff",
+  Pluto: "#e5baa5",
 };
 
 const PLANET_SYMBOLS: Record<string, string> = {
@@ -673,15 +673,8 @@ export default function Home() {
                 const rowClassNames = [highlightClass, isCurrent ? "current" : ""]
                   .filter(Boolean)
                   .join(" ");
-                const rowStyle = isCurrent
-                  ? {
-                      backgroundColor: ph.color,
-                    }
-                  : { backgroundColor: "#ffffff" };
-
-
                 return (
-                  <tr key={ph.hour} className={rowClassNames} style={rowStyle} aria-current={isCurrent ? "true" : undefined}>
+                  <tr key={ph.hour} className={rowClassNames} aria-current={isCurrent ? "true" : undefined}>
                     <td>{ph.hour}</td>
                     <td>
                       {ph.startTime} - {ph.endTime}

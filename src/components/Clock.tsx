@@ -149,7 +149,7 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
 
     // Fetch data only when the date changes
     fetchPlanetData();
-  }, [now.getHours(), observer]);
+  }, [now.getDate(), observer]);
 
   const dateFmt = useMemo(
     () =>
