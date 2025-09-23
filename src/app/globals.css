@@ -60,7 +60,6 @@ body.dark-mode .planetary-info-table tbody tr {
   border-bottom-color: #444;
 }
 
-/* Ensure top date/time adopts light text in dark mode */
 body.dark-mode #datetime,
 body.dark-mode #weather,
 body.dark-mode .header-date,
@@ -189,7 +188,8 @@ body.dark-mode .neutral {
   margin-right: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   font-size: 1.1em;
 }
 
@@ -272,8 +272,8 @@ body.dark-mode .neutral {
 .header-left { text-align: left; }
 .header-right { text-align: right; }
 
-.header-date, .header-time { font-size: clamp(1rem, 2.4vw, 1.25rem); margin: 0 0 4px; }
-.header-location, .header-weather { font-size: clamp(1rem, 2.4vw, 1.25rem); margin: 0; }
+.header-date, .header-time { font-size: clamp(0.8rem, 1.8vw, 1rem); margin: 0 0 2px; }
+.header-location, .header-weather { font-size: clamp(0.8rem, 1.8vw, 1rem); margin: 0; }
 
 .home-button {
   position: fixed;
@@ -391,7 +391,6 @@ h2, h3 {
 .retrograde-text { color: #ff0036; font-weight: 700; }
 .zodiac-symbol { font-weight: 700; margin-left: 6px; background: #9a79bd; color: #fff; padding: 2px 8px; border-radius: 6px; }
 
-/* Row highlight colors matching the screenshot */
 .sol-highlight { background-color: #ffd071; }
 .luna-highlight { background-color: #d1d1d1; }
 .mercury-highlight { background-color: #fff59c; }
@@ -413,17 +412,16 @@ h2, h3 {
 .planetary-info-table tbody tr.neptune-highlight td:first-child::after { content: " â™†"; }
 .planetary-info-table tbody tr.pluto-highlight td:first-child::after { content: " â¯“"; }
 
-/* Optional: if Sol/Luna appear in the table */
+
 .planetary-info-table tbody tr.sol-highlight td:first-child::after { content: " \2609"; } /* Sun symbol */
 .planetary-info-table tbody tr.luna-highlight td:first-child::after { content: " â˜¾"; }
 
 
 .hours-table-header-symbol {
   text-align: center;
-  font-size: 2.5rem; /* Adjust size as needed */
+  font-size: 2.5rem; 
   padding: 10px 0;
-  /* Removed background-color and color */
-  border-radius: 8px 8px 0 0; /* Rounded top corners */
+  border-radius: 8px 8px 0 0; 
 }
 
 /* Dark mode variants for hours table */
@@ -481,7 +479,7 @@ body.dark-mode .tab-button.active {
 .energies-title {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 700;
-  font-size: clamp(2.8rem, 6vw, 4rem);
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
   line-height: 1.1;
   color: var(--brand-purple);
   text-align: center;
@@ -547,6 +545,9 @@ body.dark-mode .tab-button.active {
 }
 
 .content-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
   width: 100%;
   background-color: var(--card-bg);
   border-radius: 12px;
@@ -792,6 +793,53 @@ body.dark-mode .planetary-info-table tr.pluto-highlight { background-color: #4f2
 .hours-table td:nth-child(3) {
   width: 35%;
   text-align: right;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+
+  .page-container {
+    padding: 16px;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .header-left, .header-right {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .content-section {
+    grid-template-columns: 1fr;
+  }
+
+  .planetary-info-table td, .hours-table td {
+    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    padding: 4px 6px;
+  }
+
+  .energies-title {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+  }
+
+  .dark-mode-toggle {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .planetary-info-table, .hours-table {
+    display: block;
+    overflow-x: auto;
+  }
 }
 /* Dark mode variants for hours table */
 body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
