@@ -848,7 +848,7 @@ body.dark-mode .planetary-info-table tr.pluto-highlight { background-color: #4f2
   }
 }
 /* Dark mode variants for hours table */
-body.dark-mode .hours-table tbody tr { background: #2a2a2a; }
+body.dark-mode .hours-table tbody tr { background: #444; }
 body.dark-mode .hours-table .current { color: #fff; }
 
 body.dark-mode .hours-table .sol-highlight.current { background-color: #ac7403; }
