@@ -165,6 +165,7 @@ export default function Home() {
   const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
     now.getDate(),
   ).padStart(2, "0")}`;
+  const prevDateRef = useRef(now.getDate());
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -565,11 +566,12 @@ export default function Home() {
     };
 
     run();
-  }, [now]);
-
-  useEffect(() => {
     setDailyLuck(getDailyLuck(now));
-  }, [now]);
+    const currentDate = now.getDate();
+    if (prevDateRef.current !== currentDate) {
+      prevDateRef.current = currentDate;
+    }
+  }, [dayKey]);
 
   useEffect(() => {
     if (sunriseTime && sunsetTime && nextSunriseTime) {

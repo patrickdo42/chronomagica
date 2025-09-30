@@ -424,11 +424,6 @@ h2, h3 {
   border-radius: 8px 8px 0 0; 
 }
 
-/* Dark mode variants for hours table */
-body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
-body.dark-mode .hours-table tbody tr:nth-child(even) { background: #343434; }
-body.dark-mode .hours-table .current { color: #ffffff; }
-
 body.dark-mode h1,
 body.dark-mode h2,
 body.dark-mode h3,
@@ -751,12 +746,8 @@ body.dark-mode .planetary-info-table tr.pluto-highlight { background-color: #4f2
   margin: 0 auto;
 }
 
-.hours-table tbody tr:nth-child(odd) {
-  background: #ececec;
-}
-
-.hours-table tbody tr:nth-child(even) {
-  background: #d8d8d8;
+.hours-table tbody tr {
+  background: #ffffff;
 }
 
 .hours-table td {
@@ -850,13 +841,6 @@ body.dark-mode .planetary-info-table tr.pluto-highlight { background-color: #4f2
   }
 }
 
-@media (max-width: 768px) { /* Target screens smaller than 768px (mobile) */
-  .hours-table td {
-    font-size: 0.9rem; /* Reduce font size for mobile */
-    padding: 8px 10px; /* Reduce padding for mobile */
-  }
-}
-
 @media (max-width: 480px) {
   .planetary-info-table, .hours-table {
     display: block;
@@ -864,8 +848,7 @@ body.dark-mode .planetary-info-table tr.pluto-highlight { background-color: #4f2
   }
 }
 /* Dark mode variants for hours table */
-body.dark-mode .hours-table tbody tr:nth-child(odd) { background: #2a2a2a; }
-body.dark-mode .hours-table tbody tr:nth-child(even) { background: #343434; }
+body.dark-mode .hours-table tbody tr { background: #2a2a2a; }
 body.dark-mode .hours-table .current { color: #fff; }
 
 body.dark-mode .hours-table .sol-highlight.current { background-color: #ac7403; }

@@ -83,6 +83,7 @@ export function ClockTime({ locale, timeZone }: ClockCommonProps) {
 export default function Clock({ locale, timeZone }: ClockCommonProps) {
   const now = useNow(1000);
   const [planetData, setPlanetData] = useState<Record<string, PlanetData>>({});
+  const prevDateRef = useRef(now.getDate());
 
   // Default observer location (e.g., Chicago) - can be made dynamic later
   const [coords, setCoords] = useState({
@@ -147,8 +148,11 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
         setPlanetData(currentData);
       };
 
-    // Fetch data only when the date changes
     fetchPlanetData();
+    const currentDate = now.getDate();
+    if (prevDateRef.current !== currentDate) {
+      prevDateRef.current = currentDate;
+    }
   }, [now.getDate(), observer]);
 
   const dateFmt = useMemo(
