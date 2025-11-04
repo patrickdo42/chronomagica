@@ -156,6 +156,7 @@ export default function Home() {
   const [usingDeviceLocation, setUsingDeviceLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(true);
+  const [locationName, setLocationName] = useState<string | null>(null);
   const [dailyLuck, setDailyLuck] = useState<'lucky' | 'unlucky' | 'neutral' | null>(null);
   const [clientLocale, setClientLocale] = useState<string | undefined>(undefined);
   const [clientTimeZone, setClientTimeZone] = useState<string | undefined>(undefined);
@@ -201,12 +202,19 @@ export default function Home() {
     [clientLocale, clientTimeZone],
   );
 
+  const formattedDate = useMemo(() => headerDateFmt.format(now), [headerDateFmt, now]);
+  const formattedTime = useMemo(() => headerTimeFmt.format(now), [headerTimeFmt, now]);
+
   const formatCoordinate = (value: number, positive: string, negative: string) =>
     `${Math.abs(value).toFixed(2)} deg ${value >= 0 ? positive : negative}`;
 
   const locationLabel = useMemo(() => {
     if (isLocating) {
       return "Detecting location...";
+    }
+
+    if (locationName) {
+      return locationName;
     }
 
     const latitudeLabel = formatCoordinate(observer.latitude, "N", "S");
@@ -227,11 +235,16 @@ export default function Home() {
     usingDeviceLocation,
     locationError,
     isLocating,
+    locationName,
   ]);
 
   const locationTitle = useMemo(() => {
     if (isLocating) {
       return "Detecting device location";
+    }
+
+    if (locationName) {
+      return `Location: ${locationName}`;
     }
 
     if (usingDeviceLocation && !locationError) {
@@ -243,7 +256,7 @@ export default function Home() {
     }
 
     return "Using default coordinates";
-  }, [isLocating, usingDeviceLocation, locationError]);
+  }, [isLocating, usingDeviceLocation, locationError, locationName]);
 
   const getDayOfWeek = (date: Date): number => date.getDay();
 
@@ -328,6 +341,28 @@ export default function Home() {
 
     return hours;
   };
+
+  useEffect(() => {
+    if (!isLocating) {
+      const fetchLocationName = async () => {
+        try {
+          const res = await fetch(
+            `/api/location?latitude=${observer.latitude}&longitude=${observer.longitude}`,
+          );
+          const data = await res.json();
+          if (data.city && data.state) {
+            setLocationName(`${data.city}, ${data.state}`);
+          } else {
+            setLocationName(null); // Fallback to coordinates
+          }
+        } catch (error) {
+          console.error("Failed to fetch location name:", error);
+          setLocationName(null); // Fallback to coordinates
+        }
+      };
+      fetchLocationName();
+    }
+  }, [observer, isLocating]);
 
   useEffect(() => {
     let active = true;
@@ -597,7 +632,7 @@ export default function Home() {
         <div className="header-left">
           <p className="header-date">
             <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
-              {headerDateFmt.format(now)}
+              {formattedDate}
             </time>
           </p>
           <p className="header-location" aria-live="polite" title={locationTitle}>{locationLabel}</p>
@@ -605,7 +640,7 @@ export default function Home() {
         <div className="header-right">
           <p className="header-time">
             <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
-              {headerTimeFmt.format(now)}
+              {formattedTime}
             </time>
           </p>
           <p className="header-weather"></p>
