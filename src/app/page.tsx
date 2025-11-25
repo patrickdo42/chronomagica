@@ -163,10 +163,10 @@ export default function Home() {
 
   const now = useNow(1000);
   const sunRefreshRequested = useRef(false);
-  const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+  const dayKey = now ? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
     now.getDate(),
-  ).padStart(2, "0")}`;
-  const prevDateRef = useRef(now.getDate());
+  ).padStart(2, "0")}` : "";
+  const prevDateRef = useRef(now?.getDate());
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -202,8 +202,8 @@ export default function Home() {
     [clientLocale, clientTimeZone],
   );
 
-  const formattedDate = useMemo(() => headerDateFmt.format(now), [headerDateFmt, now]);
-  const formattedTime = useMemo(() => headerTimeFmt.format(now), [headerTimeFmt, now]);
+  const formattedDate = useMemo(() => now ? headerDateFmt.format(now) : "", [headerDateFmt, now]);
+  const formattedTime = useMemo(() => now ? headerTimeFmt.format(now) : "", [headerTimeFmt, now]);
 
   const formatCoordinate = (value: number, positive: string, negative: string) =>
     `${Math.abs(value).toFixed(2)} deg ${value >= 0 ? positive : negative}`;
@@ -506,7 +506,7 @@ export default function Home() {
   }, [dayKey, isLocating, observer, sunFetchTrigger]);
 
   useEffect(() => {
-    if (!nextSunriseTime) {
+    if (!nextSunriseTime || !now) {
       sunRefreshRequested.current = false;
       return;
     }
@@ -522,7 +522,8 @@ export default function Home() {
   }, [now, nextSunriseTime]);
 
   useEffect(() => {
-    const nowLocal = new Date();
+    if (!now) return;
+    const nowLocal = new Date(now); // Clone to avoid side effects if any, though now is state
     const astronomyTime = Astronomy.MakeTime(nowLocal);
     const elong = Astronomy.MoonPhase(astronomyTime);
     let moonPhaseName = "";
@@ -606,7 +607,7 @@ export default function Home() {
     if (prevDateRef.current !== currentDate) {
       prevDateRef.current = currentDate;
     }
-  }, [dayKey]);
+  }, [dayKey, now]);
 
   useEffect(() => {
     if (sunriseTime && sunsetTime && nextSunriseTime) {
@@ -631,17 +632,21 @@ export default function Home() {
       <div className="header-section">
         <div className="header-left">
           <p className="header-date">
-            <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
-              {formattedDate}
-            </time>
+            {now && (
+              <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
+                {formattedDate}
+              </time>
+            )}
           </p>
           <p className="header-location" aria-live="polite" title={locationTitle}>{locationLabel}</p>
         </div>
         <div className="header-right">
           <p className="header-time">
-            <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
-              {formattedTime}
-            </time>
+            {now && (
+              <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
+                {formattedTime}
+              </time>
+            )}
           </p>
           <p className="header-weather"></p>
         </div>
@@ -682,9 +687,9 @@ export default function Home() {
               <th colSpan={3} className="hours-table-header-symbol">
                 {(() => {
                   const showNightBlock =
-                    planetaryHours.length >= 13 && sunriseTime && sunsetTime
+                    planetaryHours.length >= 13 && sunriseTime && sunsetTime && now
                       ? now.getTime() < sunriseTime.getTime() ||
-                        now.getTime() >= sunsetTime.getTime()
+                      now.getTime() >= sunsetTime.getTime()
                       : false;
                   return showNightBlock ? "☾" : "☀";
                 })()}
@@ -694,16 +699,16 @@ export default function Home() {
           <tbody>
             {(() => {
               const showNightBlock =
-                planetaryHours.length >= 13 && sunriseTime && sunsetTime
+                planetaryHours.length >= 13 && sunriseTime && sunsetTime && now
                   ? now.getTime() < sunriseTime.getTime() ||
-                    now.getTime() >= sunsetTime.getTime()
+                  now.getTime() >= sunsetTime.getTime()
                   : false;
               const visible = showNightBlock
                 ? planetaryHours.slice(12, 24)
                 : planetaryHours.slice(0, 12);
               return visible.map((ph) => {
                 const isCurrent =
-                  ph.startDate && ph.endDate
+                  ph.startDate && ph.endDate && now
                     ? now >= ph.startDate && now < ph.endDate
                     : false;
                 const highlightClass = `${ph.planet.toLowerCase()}-highlight`;
@@ -736,7 +741,8 @@ export default function Home() {
         <p className={`daily-luck-text ${dailyLuck}`} style={{ textAlign: "center", fontSize: "1.4rem", marginTop: 16 }}>
           Today is {dailyLuck}.
         </p>
-      )}
-    </main>
+      )
+      }
+    </main >
   );
 }

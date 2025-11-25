@@ -10,7 +10,7 @@ type ClockCommonProps = {
 };
 
 export function useNow(intervalMs = 1000) {
-  const [now, setNow] = useState<Date>(() => new Date());
+  const [now, setNow] = useState<Date | null>(null);
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -48,6 +48,8 @@ export function ClockDate({ locale, timeZone }: ClockCommonProps) {
     [locale, timeZone],
   );
 
+  if (!now) return null;
+
   const text = formatter.format(now);
 
   return (
@@ -70,6 +72,8 @@ export function ClockTime({ locale, timeZone }: ClockCommonProps) {
       }),
     [locale, timeZone],
   );
+
+  if (!now) return null;
 
   const text = formatter.format(now);
 
@@ -115,9 +119,9 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
   );
 
   const dateString = useMemo(
-    () => now.toLocaleDateString("en-CA"),
+    () => now ? now.toLocaleDateString("en-CA") : "",
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [now.getFullYear(), now.getMonth(), now.getDate()],
+    [now?.getFullYear(), now?.getMonth(), now?.getDate()],
   );
 
   useEffect(() => {
@@ -179,18 +183,20 @@ export default function Clock({ locale, timeZone }: ClockCommonProps) {
 
   return (
     <span suppressHydrationWarning>
-      <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
-        {dateFmt.format(now)} {timeFmt.format(now)}
-      </time>
+      {now && (
+        <time dateTime={now.toISOString()} suppressHydrationWarning aria-live="polite">
+          {dateFmt.format(now)} {timeFmt.format(now)}
+        </time>
+      )}
       <table className="planetary-table">
         <thead>
           <tr>
             <th colSpan={3}>
-              {now.getHours() >= 1 && now.getHours() <= 12 ? (
+              {now && (now.getHours() >= 1 && now.getHours() <= 12 ? (
                 <span>&#9728; Hours 1-12</span>
               ) : (
                 <span>&#9789; Hours 13-24</span>
-              )}
+              ))}
             </th>
           </tr>
         </thead>
