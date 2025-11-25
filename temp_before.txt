@@ -1,7 +1,0 @@
-                      className="retrograde-indicator"
-                      aria-label="Retrograde"
-                      title="Retrograde"
-                    >
-                      ℞
-                    </span>
-                  ) : (
