@@ -1,0 +1,17 @@
+{
+	"recommendations": [
+		"bradlc.vscode-tailwindcss",
+		// JS
+		"xabikos.javascriptsnippets",
+		// Testing
+		"ms-playwright.playwright",
+		"vitest.explorer",
+		// Format + Lint
+		"editorconfig.editorconfig",
+		"oxc.oxc-vscode",
+		"esbenp.prettier-vscode",
+		// Infra
+		"github.vscode-github-actions",
+		"mikestead.dotenv"
+	]
+}
