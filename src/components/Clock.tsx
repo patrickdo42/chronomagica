@@ -67,6 +67,7 @@ export function ClockTime({ locale, timeZone }: ClockCommonProps) {
       new Intl.DateTimeFormat(locale, {
         hour: "numeric",
         minute: "2-digit",
+        second: "2-digit",
         hour12: true,
         timeZone,
       }),

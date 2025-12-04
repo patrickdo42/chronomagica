@@ -196,6 +196,7 @@ export default function Home() {
       new Intl.DateTimeFormat(clientLocale ?? undefined, {
         hour: "numeric",
         minute: "2-digit",
+        second: "2-digit",
         hour12: true,
         timeZone: clientTimeZone ?? undefined,
       }),
