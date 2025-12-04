@@ -30,9 +30,9 @@ function Home() {
   });
   const [isDark, setIsDark] = React.useState(false);
 
-  // Update time every minute
+  // Update time every second for accurate current hour detection
   React.useEffect(() => {
-    const timer = setInterval(() => setDate(new Date()), 60000);
+    const timer = setInterval(() => setDate(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -42,18 +42,23 @@ function Home() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          // Reverse geocoding to get name? 
-          // For now, just use coordinates or a generic name if API not available.
-          // Or fetch from Open-Meteo geocoding?
-          // I'll stick to "Current Location" or try to fetch name if possible.
-          // Actually, prompt says "Current Location (Auto-detected but adjustable)".
-          // Implementing adjustable location is complex. I'll stick to auto-detect + manual override UI if requested, 
-          // but for now just auto-detect.
-          // I'll update name to "Detected Location" or similar.
-          setLocation(prev => ({ ...prev, lat: latitude, lon: longitude, name: 'Detected Location' }));
+
+          // Try to get city name from reverse geocoding
+          try {
+            const response = await fetch(
+              `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}`
+            );
+            const data = await response.json();
+            const cityName = data.results?.[0]?.name || 'Current Location';
+            setLocation({ lat: latitude, lon: longitude, name: cityName });
+          } catch (error) {
+            console.error('Error getting city name:', error);
+            setLocation({ lat: latitude, lon: longitude, name: 'Current Location' });
+          }
         },
         (error) => {
           console.error("Error getting location", error);
+          // Keep default location if geolocation fails
         }
       );
     }
