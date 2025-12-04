@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Lightbulb } from 'lucide-react'
 
 interface WeatherData {
 	location: string
@@ -21,7 +21,7 @@ export function WeatherWidget() {
 	const [weather, setWeather] = useState<WeatherData | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
-	const [hasLocation, setHasLocation] = useState(false)
+
 	const [currentTime, setCurrentTime] = useState(new Date())
 
 	// Update time every second
@@ -33,24 +33,39 @@ export function WeatherWidget() {
 	const formattedTime = currentTime.toLocaleTimeString('en-US', {
 		hour: 'numeric',
 		minute: '2-digit',
-		second: '2-digit',
 	})
 
 	const formattedDate = currentTime.toLocaleDateString('en-US', {
 		weekday: 'long',
+		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
 	})
 
-	const getWeatherEmoji = (condition: string): string => {
-		const c = condition.toLowerCase()
-		if (c.includes('clear') || c.includes('sunny')) return '☀️'
-		if (c.includes('cloud')) return '☁️'
-		if (c.includes('rain')) return '🌧️'
-		if (c.includes('snow')) return '❄️'
-		if (c.includes('thunder') || c.includes('storm')) return '⛈️'
-		if (c.includes('fog') || c.includes('mist')) return '🌫️'
-		return '🌤️'
+	const weatherCodeMap: Record<number, { description: string; emoji: string }> = {
+		0: { description: 'Clear sky', emoji: '☀️' },
+		1: { description: 'Mainly clear', emoji: '🌤️' },
+		2: { description: 'Partly cloudy', emoji: '⛅' },
+		3: { description: 'Overcast', emoji: '☁️' },
+		45: { description: 'Fog', emoji: '🌫️' },
+		48: { description: 'Rime fog', emoji: '🌫️' },
+		51: { description: 'Light drizzle', emoji: '🌧️' },
+		53: { description: 'Drizzle', emoji: '🌧️' },
+		55: { description: 'Dense drizzle', emoji: '🌧️' },
+		61: { description: 'Light rain', emoji: '🌧️' },
+		63: { description: 'Rain', emoji: '🌧️' },
+		65: { description: 'Heavy rain', emoji: '🌧️' },
+		71: { description: 'Light snow', emoji: '❄️' },
+		73: { description: 'Snow', emoji: '❄️' },
+		75: { description: 'Heavy snow', emoji: '❄️' },
+		80: { description: 'Rain showers', emoji: '🌧️' },
+		81: { description: 'Rain showers', emoji: '🌧️' },
+		82: { description: 'Heavy rain showers', emoji: '🌧️' },
+		85: { description: 'Light snow showers', emoji: '❄️' },
+		86: { description: 'Heavy snow showers', emoji: '❄️' },
+		95: { description: 'Thunderstorm', emoji: '⛈️' },
+		96: { description: 'Thunderstorm with light hail', emoji: '⛈️' },
+		99: { description: 'Thunderstorm with heavy hail', emoji: '⛈️' },
 	}
 
 	useEffect(() => {
@@ -74,38 +89,22 @@ export function WeatherWidget() {
 				)
 
 				const { latitude, longitude } = position.coords
-				setHasLocation(true)
 
 				const weatherResponse = await fetch(
-					`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`,
+					`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit`,
 				)
 
 				if (!weatherResponse.ok) throw new Error('Failed to fetch weather')
 
 				const weatherData = await weatherResponse.json()
 
-				const weatherCodes: Record<number, string> = {
-					0: 'Clear sky',
-					1: 'Mainly clear',
-					2: 'Partly cloudy',
-					3: 'Overcast',
-					45: 'Fog',
-					48: 'Rime fog',
-					51: 'Light drizzle',
-					53: 'Drizzle',
-					55: 'Dense drizzle',
-					61: 'Light rain',
-					63: 'Rain',
-					65: 'Heavy rain',
-					71: 'Light snow',
-					73: 'Snow',
-					75: 'Heavy snow',
-					80: 'Rain showers',
-					95: 'Thunderstorm',
+				const weatherCode = weatherData.current.weather_code
+				const weatherInfo = weatherCodeMap[weatherCode]
+				
+				if (!weatherInfo) {
+					throw new Error(`Missing weather code mapping for code: ${weatherCode}`)
 				}
 
-				const condition =
-					weatherCodes[weatherData.current.weather_code] || 'Unknown'
 				const temp = Math.round(weatherData.current.temperature_2m)
 				const high = Math.round(weatherData.daily.temperature_2m_max[0])
 				const low = Math.round(weatherData.daily.temperature_2m_min[0])
@@ -118,7 +117,7 @@ export function WeatherWidget() {
 					if (geoResponse.ok) {
 						const geoData = await geoResponse.json()
 						location = geoData.city
-							? `${geoData.city}, ${geoData.countryCode || ''}`.trim()
+							? `${geoData.city}, ${geoData.principalSubdivisionCode || ''}`.trim()
 							: location
 					}
 				} catch {
@@ -130,8 +129,8 @@ export function WeatherWidget() {
 					temp,
 					high,
 					low,
-					condition,
-					conditionEmoji: getWeatherEmoji(condition),
+					condition: weatherInfo.description,
+					conditionEmoji: weatherInfo.emoji,
 					humidity: weatherData.current.relative_humidity_2m,
 					windSpeed: Math.round(weatherData.current.wind_speed_10m),
 				})
@@ -147,7 +146,6 @@ export function WeatherWidget() {
 				} else {
 					setError(error.message || 'Failed to fetch weather')
 				}
-				setHasLocation(false)
 			} finally {
 				setLoading(false)
 			}
@@ -156,69 +154,40 @@ export function WeatherWidget() {
 		getLocationAndWeather()
 	}, [])
 
-	const TimeDisplay = () => (
-		<div className="text-center">
-			<div className="font-mono text-4xl font-light tracking-tight">
-				{formattedTime}
-			</div>
-			<div className="text-muted-foreground mt-1 text-sm">{formattedDate}</div>
-		</div>
-	)
-
-	if (loading) {
-		return (
-			<Card>
-				<CardContent className="flex flex-col items-center gap-6 p-6">
-					<TimeDisplay />
-					<div className="flex items-center gap-2">
-						<div className="border-muted-foreground h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
-						<span className="text-muted-foreground text-xs">
-							Fetching weather...
-						</span>
-					</div>
-				</CardContent>
-			</Card>
-		)
-	}
-
-	if (error || !hasLocation || !weather) {
-		return (
-			<Card>
-				<CardContent className="flex flex-col items-center gap-6 p-6">
-					<TimeDisplay />
-					<div className="text-muted-foreground text-center text-xs">
-						{error || 'Enable location for weather'}
-					</div>
-				</CardContent>
-			</Card>
-		)
-	}
-
 	return (
-		<Card>
-			<CardContent className="flex flex-col items-center gap-6 p-6">
-				<TimeDisplay />
-				<div className="flex items-center gap-8">
-					<div className="flex items-center gap-3">
-						<span className="text-5xl">{weather.conditionEmoji}</span>
-						<div>
-							<div className="text-3xl font-semibold">{weather.temp}°</div>
-							<div className="text-muted-foreground text-xs">
-								{weather.high}° / {weather.low}°
-							</div>
-						</div>
+		<div className="w-full max-w-2xl bg-white p-4 text-black font-serif">
+			<div className="relative mb-6 text-center">
+				<Lightbulb className="absolute -top-2 right-0 h-8 w-8 text-yellow-900" strokeWidth={1.5} />
+				
+				<div className="flex items-center justify-center gap-4">
+					<span className="text-4xl text-[#4a042e]">◀</span>
+					<h1 className="text-5xl text-[#4a042e] font-decorative leading-tight">
+						Today's Energies
+					</h1>
+					<span className="text-4xl text-[#4a042e]">▶</span>
+				</div>
+
+				<div className="mt-2 flex justify-between text-lg font-serif text-gray-800">
+					<div className="text-left">
+						<div>{formattedDate}</div>
+						<div>{weather?.location || (loading ? 'Locating...' : 'Location Unavailable')}</div>
 					</div>
-					<div className="text-muted-foreground space-y-0.5 text-xs">
-						<div className="text-foreground text-lg font-medium">
-							{weather.location}
-						</div>
-						<div>{weather.condition}</div>
-						<div>
-							{weather.humidity}% humidity · {weather.windSpeed} mph
+					<div className="text-right">
+						<div>{formattedTime}</div>
+						<div className="flex items-center justify-end gap-1">
+							{loading ? (
+								<span>Loading weather...</span>
+							) : weather ? (
+								<>
+									{weather.temp}° F, {weather.condition} <span className="text-xl">{weather.conditionEmoji}</span>
+								</>
+							) : (
+								<span>{error || 'Weather Unavailable'}</span>
+							)}
 						</div>
 					</div>
 				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	)
 }

@@ -1,64 +1,81 @@
-import { getPlanetaryStatus, getZodiacSign, PLANETS } from '@/lib/astronomy'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+	getLuckStatus,
+	getPlanetaryStatus,
+	getZodiacSign,
+	PLANETS,
+} from '@/lib/astronomy'
 import {
 	Table,
-	TableHeader,
-	TableRow,
-	TableHead,
 	TableBody,
 	TableCell,
+	TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 
 export function PlanetaryTable({ date }: { date: Date }) {
+	const luck = getLuckStatus(date)
+
 	return (
-		<Card className="w-full max-w-lg text-xl">
-			<CardHeader className="text-center">
-				<CardTitle className="text-2xl">Planetary Table</CardTitle>
-			</CardHeader>
-			<CardContent>
+		<div className="w-full max-w-2xl bg-white p-4 text-black font-serif">
+			{/* Planetary Table */}
+			<div className="overflow-hidden rounded-lg">
 				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Planet</TableHead>
-							<TableHead className="text-center">Status</TableHead>
-							<TableHead>Zodiac Sign</TableHead>
-						</TableRow>
-					</TableHeader>
 					<TableBody>
 						{PLANETS.map((planet) => {
 							const status = getPlanetaryStatus(planet, date)
 							const zodiacSign = getZodiacSign(planet, date)
+							
 							return (
 								<TableRow
 									key={planet.name}
+									className="border-0 hover:bg-transparent"
 									style={{ backgroundColor: planet.color }}
 								>
-									<TableCell>
-										{planet.symbol} {planet.name}
+									{/* Planet Name */}
+									<TableCell className="py-1 pl-3 text-xl font-bold text-black border-0">
+										{planet.name} <span className="font-normal">{planet.symbol}</span>
 									</TableCell>
 
-									<TableCell className="text-center">
+									{/* Status */}
+									<TableCell className="py-1 text-center text-lg text-black border-0">
 										{typeof status === 'object' ? (
-											<Badge>
-												{status.symbol} {status.name}
-											</Badge>
+											<div className="flex items-center justify-center gap-2">
+												<span>{status.name}</span>
+												<span className="text-2xl">{status.symbol}</span>
+											</div>
 										) : status === '℞ Retrograde' ? (
-											<Badge className="bg-red-500">{status}</Badge>
+											<span className="font-bold text-red-600">
+												Retrograde <span className="font-serif">℞</span>
+											</span>
 										) : (
-											status && <Badge>{status}</Badge>
+											status
 										)}
 									</TableCell>
 
-									<TableCell>
-										{zodiacSign.symbol} {zodiacSign.name}
+									{/* Zodiac Sign */}
+									<TableCell className="py-1 pr-1 text-right text-xl font-bold text-black border-0">
+										<div className="flex items-center justify-end gap-2">
+											<span>{zodiacSign.name}</span>
+											<span className="flex h-8 w-8 items-center justify-center rounded bg-[#9d7ad2] text-white">
+												{zodiacSign.symbol}
+											</span>
+										</div>
 									</TableCell>
 								</TableRow>
 							)
 						})}
 					</TableBody>
 				</Table>
-			</CardContent>
-		</Card>
+			</div>
+
+			{/* Footer */}
+			<div className="mt-6 text-center">
+				<p 
+					className="text-2xl font-bold"
+					style={{ color: luck.color }}
+				>
+					Today is {luck.status}.
+				</p>
+			</div>
+		</div>
 	)
 }
