@@ -66,16 +66,6 @@ export function PlanetaryTable({ date }: { date: Date }) {
 					</TableBody>
 				</Table>
 			</div>
-
-			{/* Footer */}
-			<div className="mt-6 text-center">
-				<p 
-					className="text-2xl font-bold"
-					style={{ color: luck.color }}
-				>
-					Today is {luck.status}.
-				</p>
-			</div>
 		</div>
 	)
 }

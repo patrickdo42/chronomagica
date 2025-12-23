@@ -34,7 +34,7 @@ function RootComponent() {
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="font-serif">
 				<Outlet />
 				<Scripts />
 			</body>

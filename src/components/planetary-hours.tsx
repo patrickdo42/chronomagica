@@ -89,7 +89,7 @@ export function PlanetaryHours() {
 	]
 
 	return (
-		<div className="w-full max-w-md font-serif text-black">
+		<div className="w-full max-w-md text-black">
 			{/* Day/Night Icon Header */}
 			<div className="flex justify-center py-2 text-2xl">☀️</div>
 
@@ -122,11 +122,6 @@ export function PlanetaryHours() {
 						))}
 					</TableBody>
 				</Table>
-			</div>
-
-			{/* Footer */}
-			<div className="mt-6 text-center">
-				<p className="text-2xl font-bold text-[#228b22]">Today is lucky.</p>
 			</div>
 		</div>
 	)
