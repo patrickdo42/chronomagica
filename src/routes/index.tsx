@@ -10,6 +10,10 @@ export const Route = createFileRoute('/')({
 
 function Home() {
 	const [date, setDate] = React.useState(new Date())
+	const [location, setLocation] = React.useState<{
+		lat: number
+		lon: number
+	} | null>(null)
 
 	// Update time every second
 	React.useEffect(() => {
@@ -17,13 +21,30 @@ function Home() {
 		return () => clearInterval(timer)
 	}, [])
 
+	// Get location
+	React.useEffect(() => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					setLocation({
+						lat: position.coords.latitude,
+						lon: position.coords.longitude,
+					})
+				},
+				(error) => {
+					console.error('Error getting location:', error)
+				},
+			)
+		}
+	}, [])
+
 	return (
 		<>
 			{/* Content */}
 			<div className="flex w-full flex-col items-center gap-4 p-4">
-				<WeatherWidget />
+				<WeatherWidget location={location} />
 				<PlanetaryTable date={date} />
-				<PlanetaryHours />
+				<PlanetaryHours date={date} location={location} />
 			</div>
 
 			{/* Footer */}

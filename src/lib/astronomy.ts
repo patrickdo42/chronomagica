@@ -6,7 +6,19 @@ import {
 	GeoVector,
 	SearchGlobalSolarEclipse,
 	SearchLunarEclipse,
+	SearchRiseSet,
+	Observer,
 } from 'astronomy-engine'
+
+export interface PlanetaryHour {
+	number: number
+	startTime: Date
+	endTime: Date
+	name: string
+	symbol: string
+	color: string
+	isCurrent: boolean
+}
 
 type Planet = {
 	name: string
@@ -214,4 +226,73 @@ function getMoonPhase(date: Date): MoonPhase {
 	const phase = MoonPhase(MakeTime(date))
 	const segment = Math.round(phase / 45) % 8
 	return MOON_PHASES[segment]
+}
+
+export function getPlanetaryHours(
+	date: Date,
+	lat: number,
+	lon: number,
+): PlanetaryHour[] {
+	const observer = new Observer(lat, lon, 0)
+	const midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+	const tMidnight = MakeTime(midnight)
+
+	const sunrise = SearchRiseSet(Body.Sun, observer, 1, tMidnight, 1)
+	const sunset = SearchRiseSet(Body.Sun, observer, -1, tMidnight, 1)
+
+	// Need next sunrise for night hours
+	const nextMidnight = new Date(midnight.getTime() + 24 * 60 * 60 * 1000)
+	const tNextMidnight = MakeTime(nextMidnight)
+	const nextSunrise = SearchRiseSet(Body.Sun, observer, 1, tNextMidnight, 1)
+
+	if (!sunrise || !sunset || !nextSunrise) return []
+
+	const dayDuration = sunset.date.getTime() - sunrise.date.getTime()
+	const nightDuration = nextSunrise.date.getTime() - sunset.date.getTime()
+
+	const dayHourLength = dayDuration / 12
+	const nightHourLength = nightDuration / 12
+
+	// Chaldean order (indices in PLANETS): Saturn(6), Jupiter(5), Mars(4), Sol(0), Venus(3), Mercury(2), Luna(1)
+	const CHALDEAN_ORDER = [6, 5, 4, 0, 3, 2, 1]
+	const startIndex = (3 + 3 * midnight.getDay()) % 7
+
+	const now = date.getTime()
+	const hours: PlanetaryHour[] = []
+
+	// Daytime hours (1-12)
+	for (let i = 0; i < 12; i++) {
+		const start = sunrise.date.getTime() + i * dayHourLength
+		const end = sunrise.date.getTime() + (i + 1) * dayHourLength
+		const planetIndex = CHALDEAN_ORDER[(startIndex + i) % 7]
+		const planet = PLANETS[planetIndex]
+		hours.push({
+			number: i + 1,
+			startTime: new Date(start),
+			endTime: new Date(end),
+			name: planet.name,
+			symbol: planet.symbol,
+			color: planet.color,
+			isCurrent: now >= start && now < end,
+		})
+	}
+
+	// Nighttime hours (13-24)
+	for (let i = 0; i < 12; i++) {
+		const start = sunset.date.getTime() + i * nightHourLength
+		const end = sunset.date.getTime() + (i + 1) * nightHourLength
+		const planetIndex = CHALDEAN_ORDER[(startIndex + 12 + i) % 7]
+		const planet = PLANETS[planetIndex]
+		hours.push({
+			number: i + 13,
+			startTime: new Date(start),
+			endTime: new Date(end),
+			name: planet.name,
+			symbol: planet.symbol,
+			color: planet.color,
+			isCurrent: now >= start && now < end,
+		})
+	}
+
+	return hours
 }

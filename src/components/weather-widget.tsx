@@ -17,7 +17,11 @@ interface GeolocationPositionError {
 	message: string
 }
 
-export function WeatherWidget() {
+export function WeatherWidget({
+	location: propLocation,
+}: {
+	location: { lat: number; lon: number } | null
+}) {
 	const [weather, setWeather] = useState<WeatherData | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
@@ -42,53 +46,42 @@ export function WeatherWidget() {
 		day: 'numeric',
 	})
 
-	const weatherCodeMap: Record<number, { description: string; emoji: string }> = {
-		0: { description: 'Clear sky', emoji: '☀️' },
-		1: { description: 'Mainly clear', emoji: '🌤️' },
-		2: { description: 'Partly cloudy', emoji: '⛅' },
-		3: { description: 'Overcast', emoji: '☁️' },
-		45: { description: 'Fog', emoji: '🌫️' },
-		48: { description: 'Rime fog', emoji: '🌫️' },
-		51: { description: 'Light drizzle', emoji: '🌧️' },
-		53: { description: 'Drizzle', emoji: '🌧️' },
-		55: { description: 'Dense drizzle', emoji: '🌧️' },
-		61: { description: 'Light rain', emoji: '🌧️' },
-		63: { description: 'Rain', emoji: '🌧️' },
-		65: { description: 'Heavy rain', emoji: '🌧️' },
-		71: { description: 'Light snow', emoji: '❄️' },
-		73: { description: 'Snow', emoji: '❄️' },
-		75: { description: 'Heavy snow', emoji: '❄️' },
-		80: { description: 'Rain showers', emoji: '🌧️' },
-		81: { description: 'Rain showers', emoji: '🌧️' },
-		82: { description: 'Heavy rain showers', emoji: '🌧️' },
-		85: { description: 'Light snow showers', emoji: '❄️' },
-		86: { description: 'Heavy snow showers', emoji: '❄️' },
-		95: { description: 'Thunderstorm', emoji: '⛈️' },
-		96: { description: 'Thunderstorm with light hail', emoji: '⛈️' },
-		99: { description: 'Thunderstorm with heavy hail', emoji: '⛈️' },
-	}
+	const weatherCodeMap: Record<number, { description: string; emoji: string }> =
+		{
+			0: { description: 'Clear sky', emoji: '☀️' },
+			1: { description: 'Mainly clear', emoji: '🌤️' },
+			2: { description: 'Partly cloudy', emoji: '⛅' },
+			3: { description: 'Overcast', emoji: '☁️' },
+			45: { description: 'Fog', emoji: '🌫️' },
+			48: { description: 'Rime fog', emoji: '🌫️' },
+			51: { description: 'Light drizzle', emoji: '🌧️' },
+			53: { description: 'Drizzle', emoji: '🌧️' },
+			55: { description: 'Dense drizzle', emoji: '🌧️' },
+			61: { description: 'Light rain', emoji: '🌧️' },
+			63: { description: 'Rain', emoji: '🌧️' },
+			65: { description: 'Heavy rain', emoji: '🌧️' },
+			71: { description: 'Light snow', emoji: '❄️' },
+			73: { description: 'Snow', emoji: '❄️' },
+			75: { description: 'Heavy snow', emoji: '❄️' },
+			80: { description: 'Rain showers', emoji: '🌧️' },
+			81: { description: 'Rain showers', emoji: '🌧️' },
+			82: { description: 'Heavy rain showers', emoji: '🌧️' },
+			85: { description: 'Light snow showers', emoji: '❄️' },
+			86: { description: 'Heavy snow showers', emoji: '❄️' },
+			95: { description: 'Thunderstorm', emoji: '⛈️' },
+			96: { description: 'Thunderstorm with light hail', emoji: '⛈️' },
+			99: { description: 'Thunderstorm with heavy hail', emoji: '⛈️' },
+		}
 
 	useEffect(() => {
+		if (!propLocation) return
+
 		const getLocationAndWeather = async () => {
 			try {
 				setLoading(true)
 				setError(null)
 
-				const position = await new Promise<GeolocationPosition>(
-					(resolve, reject) => {
-						if (!navigator.geolocation) {
-							reject(new Error('Geolocation is not supported'))
-							return
-						}
-						navigator.geolocation.getCurrentPosition(resolve, reject, {
-							enableHighAccuracy: true,
-							timeout: 10000,
-							maximumAge: 300000,
-						})
-					},
-				)
-
-				const { latitude, longitude } = position.coords
+				const { lat: latitude, lon: longitude } = propLocation
 
 				const weatherResponse = await fetch(
 					`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit`,
@@ -100,9 +93,11 @@ export function WeatherWidget() {
 
 				const weatherCode = weatherData.current.weather_code
 				const weatherInfo = weatherCodeMap[weatherCode]
-				
+
 				if (!weatherInfo) {
-					throw new Error(`Missing weather code mapping for code: ${weatherCode}`)
+					throw new Error(
+						`Missing weather code mapping for code: ${weatherCode}`,
+					)
 				}
 
 				const temp = Math.round(weatherData.current.temperature_2m)
@@ -152,25 +147,31 @@ export function WeatherWidget() {
 		}
 
 		getLocationAndWeather()
-	}, [])
+	}, [propLocation])
 
 	return (
-		<div className="w-full max-w-2xl bg-white p-4 text-black font-serif">
+		<div className="w-full max-w-2xl bg-white p-4 font-serif text-black">
 			<div className="relative mb-6 text-center">
-				<Lightbulb className="absolute -top-2 right-0 h-8 w-8 text-yellow-900" strokeWidth={1.5} />
-				
+				<Lightbulb
+					className="absolute -top-2 right-0 h-8 w-8 text-yellow-900"
+					strokeWidth={1.5}
+				/>
+
 				<div className="flex items-center justify-center gap-4">
 					<span className="text-4xl text-[#4a042e]">◀</span>
-					<h1 className="text-5xl text-[#4a042e] font-decorative leading-tight">
+					<h1 className="font-decorative text-5xl leading-tight text-[#4a042e]">
 						Today's Energies
 					</h1>
 					<span className="text-4xl text-[#4a042e]">▶</span>
 				</div>
 
-				<div className="mt-2 flex justify-between text-lg font-serif text-gray-800">
+				<div className="mt-2 flex justify-between font-serif text-lg text-gray-800">
 					<div className="text-left">
 						<div>{formattedDate}</div>
-						<div>{weather?.location || (loading ? 'Locating...' : 'Location Unavailable')}</div>
+						<div>
+							{weather?.location ||
+								(loading ? 'Locating...' : 'Location Unavailable')}
+						</div>
 					</div>
 					<div className="text-right">
 						<div>{formattedTime}</div>
@@ -179,7 +180,8 @@ export function WeatherWidget() {
 								<span>Loading weather...</span>
 							) : weather ? (
 								<>
-									{weather.temp}° F, {weather.condition} <span className="text-xl">{weather.conditionEmoji}</span>
+									{weather.temp}° F, {weather.condition}{' '}
+									<span className="text-xl">{weather.conditionEmoji}</span>
 								</>
 							) : (
 								<span>{error || 'Weather Unavailable'}</span>
