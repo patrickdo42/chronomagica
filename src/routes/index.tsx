@@ -46,8 +46,6 @@ function Home() {
 				<PlanetaryTable date={date} />
 				<PlanetaryHours date={date} location={location} />
 			</div>
-
-			{/* Footer */}
 		</>
 	)
 }
