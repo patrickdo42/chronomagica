@@ -25,11 +25,8 @@ function Home() {
 				<PlanetaryTable date={date} />
 				<PlanetaryHours />
 			</div>
-			
+
 			{/* Footer */}
-			<div className="mt-6 text-center">
-				<p className="text-2xl font-bold text-[#228b22]">Today is lucky.</p>
-			</div>
 		</>
 	)
 }
