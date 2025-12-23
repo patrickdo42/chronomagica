@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { PlanetaryTable } from '@/components/planetary-table'
 import { WeatherWidget } from '@/components/weather-widget'
+import { PlanetaryHours } from '@/components/planetary-hours'
 
 export const Route = createFileRoute('/')({
 	component: Home,
@@ -22,6 +23,7 @@ function Home() {
 			<div className="flex w-full flex-col items-center gap-4 p-4">
 				<WeatherWidget />
 				<PlanetaryTable date={date} />
+				<PlanetaryHours />
 			</div>
 		</>
 	)
